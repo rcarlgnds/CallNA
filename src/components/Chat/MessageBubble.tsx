@@ -1,0 +1,61 @@
+import React from 'react';
+import { Box, Group, Stack, Text } from '@mantine/core';
+import { Check, CheckCheck } from 'lucide-react';
+import { Message } from '../../types';
+
+interface MessageBubbleProps {
+  message: Message;
+}
+
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+  const { isOwn, content, timestamp, status } = message;
+  
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: isOwn ? 'flex-end' : 'flex-start',
+        marginBottom: 12,
+      }}
+    >
+      <Stack spacing={4} align={isOwn ? 'flex-end' : 'flex-start'}>
+        <Box
+          sx={(theme) => ({
+            maxWidth: '70%',
+            padding: '10px 14px',
+            borderRadius: theme.radius.lg,
+            backgroundColor: isOwn 
+              ? theme.colors.green[6]
+              : theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+            color: isOwn 
+              ? theme.white 
+              : theme.colorScheme === 'dark' ? theme.white : theme.black,
+            wordBreak: 'break-word',
+          })}
+        >
+          {content}
+        </Box>
+        <Group spacing={4} align="center">
+          <Text size="xs" color="dimmed" sx={{ fontSize: '0.7rem' }}>
+            {timestamp}
+          </Text>
+          {isOwn && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {status === 'sent' && (
+                <Check size={14} color="#ADB5BD" />
+              )}
+              {status === 'delivered' && (
+                <Check size={14} color="#ADB5BD" />
+              )}
+              {status === 'read' && (
+                <CheckCheck size={14} color="#06C755" />
+              )}
+            </Box>
+          )}
+        </Group>
+      </Stack>
+    </Box>
+  );
+};
+
+export default MessageBubble;

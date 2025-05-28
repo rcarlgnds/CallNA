@@ -1,92 +1,164 @@
-// src/App.tsx
-import {
-    MantineProvider,
-    ColorSchemeScript,
-    createTheme,
-    AppShell,
-    Text,
-    Burger,
-    Group,
-    ActionIcon,
-    useMantineColorScheme,
-    rem,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconSun, IconMoonStars } from '@tabler/icons-react';
-import YourNavbarComponent from './features/dashboard/DashboardPage';
+import { useState } from 'react';
+import { MantineProvider, ColorSchemeProvider, ColorScheme } from '@mantine/core';
+import { theme } from './theme/theme';
+import Layout from './components/Layout';
+import ConversationList from './components/ConversationList';
+import Chat from './components/Chat';
+import { ChatData } from './services/chats/types';
+import { Room, RoomStatus } from './services/rooms/types';
+import EmptyState from "./components/EmptyState.tsx";
+import { mockChats, initialRooms } from "./data/mockData.ts";
+import { ChatHistory, Status } from "./services/histories/types.ts";
 
-const theme = createTheme({
-    // Cobain Nanti:
-    // primaryColor: 'violet',
-});
+function App() {
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatData[]>>(mockChats);
+  const [chatMarkers, setChatMarkers] = useState<Record<string, ChatHistory[]>>({});
+  const [conversationsState, setConversationsState] = useState<Room[]>(initialRooms);
 
-function AppLayout() {
-    const [mobileNavOpened, { toggle: toggleMobileNav }] = useDisclosure();
-    const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const toggleColorScheme = (value?: ColorScheme) =>
+      setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
-    const toggleTheme = () => {
-        setColorScheme(colorScheme === 'dark' ? 'light' : 'dark');
+  const handleSelectConversation = (id: string) => {
+    setActiveConversationId(id);
+
+    if (conversationsState.find(c => c.id === id)?.unreadCount) {
+      const updatedConversations = conversationsState.map(conv =>
+          conv.id === id ? { ...conv, unreadCount: 0 } : conv
+      );
+      setConversationsState(updatedConversations);
+    }
+  };
+
+  const handleSendMessage = (content: string) => {
+    if (!activeConversationId) return;
+
+    const room = conversationsState.find(c => c.id === activeConversationId);
+    if (!room) return;
+
+    const newMessage: ChatData = {
+      id: `msg-${Date.now()}`,
+      createdAt: new Date(),
+      text: content,
+      isAdmin: true, // asumsi current user adalah admin
+      isRead: false,
+      history: null as any, // sesuaikan jika ada histories
+      room,
     };
 
-    return (
-        <AppShell
-            padding="md"
-            navbar={{
-                width: 300,
-                breakpoint: 'sm',
-                collapsed: {
-                    mobile: !mobileNavOpened,
-                },
-            }}
-            header={{ height: 60 }}
-            style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
-        >
-            <AppShell.Header>
-                <Group h="100%" px="md" justify="space-between">
-                    <Burger
-                        opened={mobileNavOpened}
-                        onClick={toggleMobileNav}
-                        hiddenFrom="sm"
-                        size="sm"
+    setChatMessages(prev => ({
+      ...prev,
+      [activeConversationId]: [...(prev[activeConversationId] || []), newMessage]
+    }));
+
+    setTimeout(() => {
+      setChatMessages(prev => {
+        const updatedMessages = [...(prev[activeConversationId] || [])];
+        const lastIndex = updatedMessages.length - 1;
+        updatedMessages[lastIndex] = {
+          ...updatedMessages[lastIndex],
+          isRead: true,
+        };
+        return {
+          ...prev,
+          [activeConversationId]: updatedMessages
+        };
+      });
+    }, 1000);
+
+    // Simulate reply (optional)
+    if (Math.random() > 0.5) {
+      setTimeout(() => {
+        const replyMessage: ChatData = {
+          id: `msg-reply-${Date.now()}`,
+          createdAt: new Date(),
+          text: `Thanks for your message: "${content.substring(0, 20)}${content.length > 20 ? '...' : ''}"`,
+          isAdmin: false,
+          isRead: false,
+          history: null as any,
+          room,
+        };
+        setChatMessages(prev => ({
+          ...prev,
+          [activeConversationId]: [...(prev[activeConversationId] || []), replyMessage]
+        }));
+      }, 2000 + Math.random() * 2000);
+    }
+  };
+
+  const activeConversation = conversationsState.find(conv => conv.id === activeConversationId);
+  const activeMessages = activeConversationId ? chatMessages[activeConversationId] || [] : [];
+  const activeMarkers = activeConversationId ? chatMarkers[activeConversationId] || [] : [];
+
+  const lastHistory = activeMarkers.length > 0 ? activeMarkers[activeMarkers.length - 1] : null;
+  const defaultHistory: ChatHistory = {
+    id: '',
+    createdAt: new Date(),
+    room: activeConversation!,
+    status: Status.RESOLVED
+  };
+
+  return (
+      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+        <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
+          <Layout
+              sidebar={
+                <ConversationList
+                    conversations={conversationsState}
+                    activeConversationId={activeConversationId}
+                    onSelectConversation={handleSelectConversation}
+                />
+              }
+              main={
+                activeConversation ? (
+                    <Chat
+                        room={activeConversation}
+                        messages={activeMessages}
+                        history={lastHistory ?? defaultHistory}
+                        onSendMessage={handleSendMessage}
+                        onUpdateStatus={(newStatus) => {
+                          if (!activeConversationId) return;
+
+                          const now = new Date();
+                          const newMarker: ChatHistory = {
+                            id: `marker-${Date.now()}`,
+                            createdAt: now,
+                            room: activeConversation,
+                            status: newStatus,
+                          };
+
+                          setChatMarkers(prev => ({
+                            ...prev,
+                            [activeConversationId]: [...(prev[activeConversationId] || []), newMarker]
+                          }));
+
+                          setConversationsState(prev =>
+                              prev.map(conv =>
+                                  conv.id === activeConversationId
+                                      ? {
+                                        ...conv,
+                                        status:
+                                            newStatus === Status.FOLLOWED_UP
+                                                ? RoomStatus.FOLLOWED_UP
+                                                : newStatus === Status.RESOLVED
+                                                    ? RoomStatus.RESOLVED
+                                                    : conv.status,
+                                      }
+                                      : conv
+                              )
+                          );
+                        }}
                     />
-                    <Text fw={500}>Call NA</Text>
-                    <ActionIcon
-                        onClick={toggleTheme}
-                        variant="default"
-                        size="lg"
-                        aria-label="Toggle color scheme"
-                    >
-                        {colorScheme === 'dark' ? (
-                            <IconSun style={{ width: rem(18), height: rem(18) }} />
-                        ) : (
-                            <IconMoonStars style={{ width: rem(18), height: rem(18) }} />
-                        )}
-                    </ActionIcon>
-                </Group>
-            </AppShell.Header>
-
-            <AppShell.Navbar p="md">
-                <YourNavbarComponent />
-            </AppShell.Navbar>
-
-            <AppShell.Main
-                style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
-            >
-                <Text p="md">Main Content</Text>
-                <Text p="md">Chat Section</Text>
-            </AppShell.Main>
-        </AppShell>
-    );
+                ) : (
+                    <EmptyState />
+                )
+              }
+              activeConversationId={activeConversationId}
+          />
+        </MantineProvider>
+      </ColorSchemeProvider>
+  );
 }
 
-export default function App() {
-    return (
-        <>
-            <ColorSchemeScript defaultColorScheme="auto" />
-            <MantineProvider theme={theme} defaultColorScheme="auto">
-                {/* Render AppLayout DI DALAM MantineProvider */}
-                <AppLayout />
-            </MantineProvider>
-        </>
-    );
-}
+export default App;
