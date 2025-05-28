@@ -3,21 +3,21 @@ import { ActionIcon, Box, Group, TextInput, Transition } from '@mantine/core';
 import { Smile, Plus, Send } from 'lucide-react';
 import QuickMessages from './QuickMessages';
 import ChatActions from './ChatActions';
+import {RoomStatus} from "../../services/rooms/types.ts";
 
 interface MessageInputProps {
     onSendMessage: (message: string) => void;
     onFollowUp: () => void;
     onResolve: () => void;
-    hasNewMessages: boolean;
-    hasFollowUp: boolean;
+    roomStatus: RoomStatus;
 }
+
 
 const MessageInput: React.FC<MessageInputProps> = ({
                                                        onSendMessage,
                                                        onFollowUp,
                                                        onResolve,
-                                                       hasNewMessages,
-                                                       hasFollowUp,
+                                                       roomStatus,
                                                    }) => {
     const [message, setMessage] = useState('');
     const [showQuickMessages, setShowQuickMessages] = useState(false);
@@ -37,12 +37,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     return (
         <Box>
-            {/* ChatActions dipindah ke atas input */}
             <ChatActions
+                status={roomStatus}
                 onFollowUp={onFollowUp}
                 onResolve={onResolve}
-                hasNewMessages={hasNewMessages}
-                hasFollowUp={hasFollowUp}
             />
 
             <Box

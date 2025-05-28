@@ -1,27 +1,9 @@
 // src/data/mockData.ts
 import { Room, RoomStatus } from '../services/rooms/types';
 import { ChatData } from '../services/chats/types';
-import { ChatHistory, Status } from '../services/histories/types';
+import { ChatHistory } from '../services/histories/types';
 
 const now = new Date();
-
-const defaultHistory1: ChatHistory = {
-  id: 'history-600-1',
-  status: Status.NEW_REQUEST,
-  timestamp: new Date(now.getTime() - 5 * 60 * 60 * 1000),
-};
-
-const defaultHistory2: ChatHistory = {
-  id: 'history-611-1',
-  status: Status.NEW_REQUEST,
-  timestamp: new Date(now.getTime() - 6 * 60 * 60 * 1000),
-};
-
-const defaultHistory3: ChatHistory = {
-  id: 'history-724-1',
-  status: Status.RESOLVED,
-  timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000),
-};
 
 export const initialRooms: Room[] = [
   {
@@ -52,6 +34,29 @@ export const initialRooms: Room[] = [
     lastMessageSenderId: 'admin',
   },
 ];
+
+
+const defaultHistory1: ChatHistory = {
+  id: 'history-600-1',
+  room: initialRooms[0],
+  status: RoomStatus.NEW_REQUEST,
+  createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000),
+};
+
+const defaultHistory2: ChatHistory = {
+  id: 'history-611-1',
+  room: initialRooms[1],
+  status: RoomStatus.NEW_REQUEST,
+  createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000),
+};
+
+const defaultHistory3: ChatHistory = {
+  id: 'history-724-1',
+  room: initialRooms[2],
+  status: RoomStatus.RESOLVED,
+  createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+};
+
 
 export const mockChats: Record<string, ChatData[]> = {
   'room-600': [

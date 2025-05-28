@@ -1,28 +1,30 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, ScrollArea } from '@mantine/core';
-
 import MessageBubble from './MessageBubble';
 import ChatMarkerComponent from './ChatMarker';
+import { ChatHistory } from "../../services/histories/types.ts";
 
-interface Message {
+export interface Message {
   id: string;
-  timestamp: string | Date;
-  content: string;
-
+  createdAt: string | Date;
+  text: string;
+  isAdmin: boolean;
+  isOwn?: boolean;
+  isRead?: boolean;
 }
 
 interface ChatMarker {
-  type: string;
-  timestamp: string;
-  date: string;
+  status: ChatHistory['status'];
+  createdAt: string | Date;
 }
 
 interface MessageListProps {
   messages: Message[];
   markers?: ChatMarker[];
+  currentUserIsAdmin: boolean;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, markers = [] }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, markers = [], currentUserIsAdmin }) => {
   const viewport = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,31 +37,43 @@ const MessageList: React.FC<MessageListProps> = ({ messages, markers = [] }) => 
   }, [messages, markers]);
 
   const getDateTime = (item: any): number => {
-    if ('content' in item) {
-      // Kalau timestamp string ISO atau Date object
-      return new Date(item.timestamp).getTime();
+    if ('text' in item) {
+      return new Date(item.createdAt).getTime();
     }
-    if ('date' in item && 'timestamp' in item) {
-      // Gabungkan date dan time menjadi Date object
-      return new Date(`${item.date} ${item.timestamp}`).getTime();
+    if ('createdAt' in item) {
+      return new Date(item.createdAt).getTime();
     }
     return 0;
   };
 
-  const timeline = [...messages, ...markers].sort((a, b) => getDateTime(a) - getDateTime(b));
+  const timeline = [...messages, ...markers]
+      .map(item => {
+        if ('text' in item) {
+          return {
+            ...item,
+            isOwn: item.isAdmin === currentUserIsAdmin,
+            createdAt: new Date(item.createdAt),
+          };
+        }
+        return {
+          ...item,
+          createdAt: new Date(item.createdAt),
+        };
+      })
+      .sort((a, b) => getDateTime(a) - getDateTime(b));
+
 
   return (
-      <ScrollArea
-          sx={{ flex: 1 }}
-          viewportRef={viewport}
-          type="auto"
-      >
+      <ScrollArea sx={{ flex: 1 }} viewportRef={viewport} type="auto">
         <Box sx={{ padding: '20px' }}>
-          {timeline.map((item) =>
-              'content' in item ? (
+          {timeline.map(item =>
+              'text' in item ? (
                   <MessageBubble key={item.id} message={item} />
               ) : (
-                  <ChatMarkerComponent key={`${item.type}-${item.timestamp}`} marker={item} />
+                  <ChatMarkerComponent
+                      key={`${item.status}-${new Date(item.createdAt).getTime()}`}
+                      marker={item}
+                  />
               )
           )}
         </Box>

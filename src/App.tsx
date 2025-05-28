@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { MantineProvider, ColorSchemeProvider, ColorScheme } from '@mantine/core';
 import { theme } from './theme/theme';
 import Layout from './components/Layout';
@@ -8,7 +8,7 @@ import { ChatData } from './services/chats/types';
 import { Room, RoomStatus } from './services/rooms/types';
 import EmptyState from "./components/EmptyState.tsx";
 import { mockChats, initialRooms } from "./data/mockData.ts";
-import { ChatHistory, Status } from "./services/histories/types.ts";
+import { ChatHistory } from "./services/histories/types.ts";
 
 function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
@@ -67,7 +67,6 @@ function App() {
       });
     }, 1000);
 
-    // Simulate reply (optional)
     if (Math.random() > 0.5) {
       setTimeout(() => {
         const replyMessage: ChatData = {
@@ -96,8 +95,30 @@ function App() {
     id: '',
     createdAt: new Date(),
     room: activeConversation!,
-    status: Status.RESOLVED
+    status: RoomStatus.RESOLVED
   };
+
+
+  // Button Logic
+  const hasNewUserMessages = (roomId: string) => {
+    const messages = chatMessages[roomId] || [];
+    return messages.some(msg => !msg.isRead && !msg.isAdmin);
+  };
+
+  useEffect(() => {
+    setConversationsState(prev => {
+      return prev.map(room => {
+        if (hasNewUserMessages(room.id)) {
+          // Trigger NEW_REQUEST hanya kalau status bukan NEW_REQUEST
+          // dan status sebelumnya FOLLOWED_UP / RESOLVED (bukan NEW_REQUEST)
+          if (room.status !== RoomStatus.NEW_REQUEST) {
+            return { ...room, status: RoomStatus.NEW_REQUEST };
+          }
+        }
+        return room;
+      });
+    });
+  }, [chatMessages]);
 
   return (
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
@@ -130,7 +151,7 @@ function App() {
 
                           setChatMarkers(prev => ({
                             ...prev,
-                            [activeConversationId]: [...(prev[activeConversationId] || []), newMarker]
+                            [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
                           }));
 
                           setConversationsState(prev =>
@@ -139,9 +160,9 @@ function App() {
                                       ? {
                                         ...conv,
                                         status:
-                                            newStatus === Status.FOLLOWED_UP
+                                            newStatus === RoomStatus.FOLLOWED_UP
                                                 ? RoomStatus.FOLLOWED_UP
-                                                : newStatus === Status.RESOLVED
+                                                : newStatus === RoomStatus.RESOLVED
                                                     ? RoomStatus.RESOLVED
                                                     : conv.status,
                                       }
@@ -150,6 +171,7 @@ function App() {
                           );
                         }}
                     />
+
                 ) : (
                     <EmptyState />
                 )

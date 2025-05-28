@@ -3,16 +3,16 @@ import { Box, Stack, Text } from '@mantine/core';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { Room } from "../../services/rooms/types.ts";
+import {Room, RoomStatus} from "../../services/rooms/types.ts";
 import { ChatData } from "../../services/chats/types.ts";
-import { ChatHistory, Status } from "../../services/histories/types.ts";
+import { ChatHistory } from "../../services/histories/types.ts";
 
 interface ChatProps {
   room: Room;
   messages: ChatData[];
   history: ChatHistory;
   onSendMessage: (message: string) => void;
-  onUpdateStatus: (status: Status) => void;
+  onUpdateStatus: (status: RoomStatus) => void;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -25,12 +25,12 @@ const Chat: React.FC<ChatProps> = ({
   const [lastMessageId, setLastMessageId] = useState<string | null>(
       messages.length > 0 ? messages[messages.length - 1].id : null
   );
-  const [chatStatus, setChatStatus] = useState<Status>(history.status);
+  const [chatStatus, setChatStatus] = useState<RoomStatus>(history.status);
 
   useEffect(() => {
     if (messages.length === 0) {
       setLastMessageId(null);
-      setChatStatus(Status.RESOLVED);
+      setChatStatus(RoomStatus.RESOLVED);
       return;
     }
 
@@ -38,51 +38,47 @@ const Chat: React.FC<ChatProps> = ({
 
     if (lastMessageId === null) {
       setLastMessageId(latestMessageId);
-      setChatStatus(Status.NEW_REQUEST);
+      setChatStatus(RoomStatus.NEW_REQUEST);
     } else if (latestMessageId !== lastMessageId) {
       setLastMessageId(latestMessageId);
-      setChatStatus(Status.NEW_REQUEST);
+      setChatStatus(RoomStatus.NEW_REQUEST);
     }
   }, [messages, lastMessageId]);
 
   const handleFollowUp = () => {
-    if (chatStatus !== Status.NEW_REQUEST) return;
-    onUpdateStatus(Status.FOLLOWED_UP);
-    setChatStatus(Status.FOLLOWED_UP);
+    if (chatStatus !== RoomStatus.NEW_REQUEST) return;
+    onUpdateStatus(RoomStatus.FOLLOWED_UP);
+    setChatStatus(RoomStatus.FOLLOWED_UP);
   };
 
   const handleResolve = () => {
-    if (chatStatus !== Status.FOLLOWED_UP) return;
-    onUpdateStatus(Status.RESOLVED);
-    setChatStatus(Status.RESOLVED);
+    if (chatStatus !== RoomStatus.FOLLOWED_UP) return;
+    onUpdateStatus(RoomStatus.RESOLVED);
+    setChatStatus(RoomStatus.RESOLVED);
   };
+
+    // !!! NANTI HARUS DIUBAH DR BACKEND HEHE
+    const currentUserIsAdmin = true;
 
   return (
       <Stack spacing={0} sx={{ height: '100%' }}>
         <ChatHeader room={room} />
-
         {messages.length === 0 ? (
             <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <Text color="dimmed">No messages yet. Start a conversation!</Text>
             </Box>
         ) : (
-            <MessageList messages={messages} />
+            <MessageList messages={messages} currentUserIsAdmin={currentUserIsAdmin} />
         )}
+          <MessageInput
+              onSendMessage={onSendMessage}
+              onFollowUp={handleFollowUp}
+              onResolve={handleResolve}
+              roomStatus={chatStatus}
+          />
 
-        <MessageInput
-            onSendMessage={onSendMessage}
-            onFollowUp={handleFollowUp}
-            onResolve={handleResolve}
-            hasNewMessages={chatStatus === Status.NEW_REQUEST}
-            hasFollowUp={chatStatus === Status.FOLLOWED_UP}
-        />
       </Stack>
   );
 };
