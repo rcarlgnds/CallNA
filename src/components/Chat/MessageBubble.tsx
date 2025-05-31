@@ -1,15 +1,14 @@
 import React from 'react';
-import { Box, Group, Stack, Text } from '@mantine/core';
+import { Box, Group, Stack, Text, Image } from '@mantine/core';
 import { Check, CheckCheck } from 'lucide-react';
-import {Message} from "./MessageList.tsx";
-
+import { Message } from "./MessageList";
 
 interface MessageBubbleProps {
   message: Message;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
-  const { isOwn, text, createdAt, isRead } = message;
+  const { isOwn, text, createdAt, isRead, imageUrl } = message;
   
   return (
     <Box
@@ -20,42 +19,48 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       }}
     >
       <Stack spacing={4} align={isOwn ? 'flex-end' : 'flex-start'}>
-          <Box
-              sx={(theme) => ({
-                  display: 'inline-block',
-                  padding: '10px 14px',
-                  borderRadius: theme.radius.lg,
-                  backgroundColor: isOwn
-                      ? theme.colors.green[6]
-                      : theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
-                  color: isOwn
-                      ? theme.white
-                      : theme.colorScheme === 'dark' ? theme.white : theme.black,
-                  whiteSpace: 'pre-wrap',
+        <Box
+          sx={(theme) => ({
+            display: 'inline-block',
+            padding: '10px 14px',
+            borderRadius: theme.radius.lg,
+            backgroundColor: isOwn
+              ? theme.colors.green[6]
+              : theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+            color: isOwn
+              ? theme.white
+              : theme.colorScheme === 'dark' ? theme.white : theme.black,
+            whiteSpace: 'pre-wrap',
+            maxWidth: '80%',
+          })}
+        >
+          {text}
+          {imageUrl && (
+            <Box mt="xs">
+              <Image
+                src={imageUrl}
+                alt="Shared image"
+                radius="md"
+                sx={{ maxWidth: 300 }}
+              />
+            </Box>
+          )}
+        </Box>
 
-              })}
-          >
-              {text}
-          </Box>
-
-          <Group spacing={4} align="center">
+        <Group spacing={4} align="center">
           <Text size="xs" color="dimmed" sx={{ fontSize: '0.7rem' }}>
-              {createdAt.toLocaleString(undefined, {
-                  day: '2-digit',
-                  month: 'long',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-              })}
+            {new Date(createdAt).toLocaleString(undefined, {
+              day: '2-digit',
+              month: 'long',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            })}
           </Text>
           {isOwn && (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {!isRead && (
-                <Check size={14} color="#ADB5BD" />
-              )}
-              {isRead && (
-                <CheckCheck size={14} color="#06C755" />
-              )}
+              {!isRead && <Check size={14} color="#ADB5BD" />}
+              {isRead && <CheckCheck size={14} color="#06C755" />}
             </Box>
           )}
         </Group>

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Box, ScrollArea } from '@mantine/core';
+import { Box, ScrollArea, Text, Divider } from '@mantine/core';
 import MessageBubble from './MessageBubble';
-import ChatMarkerComponent from './ChatMarker';
-import { ChatHistory } from "../../services/histories/types.ts";
+import { ChatHistory } from "../../services/histories/types";
+import { format } from 'date-fns';
 
 export interface Message {
   id: string;
@@ -11,6 +11,7 @@ export interface Message {
   isAdmin: boolean;
   isOwn?: boolean;
   isRead?: boolean;
+  imageUrl?: string;
 }
 
 interface ChatMarker {
@@ -47,37 +48,43 @@ const MessageList: React.FC<MessageListProps> = ({ messages, markers = [], curre
   };
 
   const timeline = [...messages, ...markers]
-      .map(item => {
-        if ('text' in item) {
-          return {
-            ...item,
-            isOwn: item.isAdmin === currentUserIsAdmin,
-            createdAt: new Date(item.createdAt),
-          };
-        }
+    .map(item => {
+      if ('text' in item) {
         return {
           ...item,
+          isOwn: item.isAdmin === currentUserIsAdmin,
           createdAt: new Date(item.createdAt),
         };
-      })
-      .sort((a, b) => getDateTime(a) - getDateTime(b));
-
+      }
+      return {
+        ...item,
+        createdAt: new Date(item.createdAt),
+      };
+    })
+    .sort((a, b) => getDateTime(a) - getDateTime(b));
 
   return (
-      <ScrollArea sx={{ flex: 1 }} viewportRef={viewport} type="auto">
-        <Box sx={{ padding: '20px' }}>
-          {timeline.map(item =>
-              'text' in item ? (
-                  <MessageBubble key={item.id} message={item} />
-              ) : (
-                  <ChatMarkerComponent
-                      key={`${item.status}-${new Date(item.createdAt).getTime()}`}
-                      marker={item}
-                  />
-              )
-          )}
-        </Box>
-      </ScrollArea>
+    <ScrollArea sx={{ flex: 1 }} viewportRef={viewport} type="auto">
+      <Box sx={{ padding: '20px' }}>
+        {timeline.map((item, index) =>
+          'text' in item ? (
+            <MessageBubble key={item.id} message={item} />
+          ) : (
+            <Box key={`${item.status}-${getDateTime(item)}`} my="md">
+              <Divider
+                label={
+                  <Text size="xs" color="dimmed">
+                    {item.status === 'FOLLOWED_UP' ? 'Followed-up' : 'Resolved'} at{' '}
+                    {format(new Date(item.createdAt), 'h:mm a')}
+                  </Text>
+                }
+                labelPosition="center"
+              />
+            </Box>
+          )
+        )}
+      </Box>
+    </ScrollArea>
   );
 };
 

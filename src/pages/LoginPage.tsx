@@ -1,10 +1,17 @@
-import React from 'react';
-import { Box, Button, Container, Paper, Stack, Text, useMantineTheme } from '@mantine/core';
+import React, { useState } from 'react';
+import { Box, Button, Container, Paper, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { useAuthStore } from '../store/authStore';
 
 const LoginPage: React.FC = () => {
   const theme = useMantineTheme();
   const setRole = useAuthStore((state) => state.setRole);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = (role: 'admin' | 'user') => {
+    if (!username || !password) return;
+    setRole(role);
+  };
 
   return (
     <Box 
@@ -30,22 +37,41 @@ const LoginPage: React.FC = () => {
           </Text>
           
           <Stack spacing="md">
+            <TextInput
+              label="Username"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            
+            <TextInput
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
             <Button
               size="lg"
-              onClick={() => setRole('admin')}
+              onClick={() => handleLogin('admin')}
               variant="filled"
               color="green"
               fullWidth
+              disabled={!username || !password}
             >
               Login as Admin
             </Button>
             
             <Button
               size="lg"
-              onClick={() => setRole('user')}
+              onClick={() => handleLogin('user')}
               variant="light"
               color="gray"
               fullWidth
+              disabled={!username || !password}
             >
               Login as User
             </Button>
