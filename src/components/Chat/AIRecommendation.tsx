@@ -57,3 +57,5 @@ const AIRecommendation: React.FC<AIRecommendationProps> = ({
     </Paper>
   );
 };
+
+export default AIRecommendation

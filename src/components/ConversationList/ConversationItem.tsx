@@ -80,7 +80,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                 </Group>
                 <Stack spacing={5} align="flex-end">
                     {lastMessageTimestamp && (
-                        <Text size="xs" color="dimmed">
+                        <Text size="xs\" color="dimmed">
                             {lastMessageTimestamp}
                         </Text>
                     )}
@@ -99,3 +99,5 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         </UnstyledButton>
     );
 };
+
+export default ConversationItem

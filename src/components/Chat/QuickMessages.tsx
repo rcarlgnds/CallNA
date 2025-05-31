@@ -64,3 +64,5 @@ const QuickMessages: React.FC<QuickMessagesProps> = ({ onSelect, className, styl
         </Paper>
     );
 };
+
+export default QuickMessages
