@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { MantineProvider, ColorSchemeProvider, ColorScheme } from '@mantine/core';
 import { theme } from './theme/theme';
 import Layout from './components/Layout';
@@ -6,9 +6,9 @@ import ConversationList from './components/ConversationList';
 import Chat from './components/Chat';
 import { ChatData } from './services/chats/types';
 import { Room, RoomStatus } from './services/rooms/types';
-import EmptyState from "./components/EmptyState.tsx";
-import { mockChats, initialRooms } from "./data/mockData.ts";
-import { ChatHistory } from "./services/histories/types.ts";
+import EmptyState from './components/EmptyState';
+import { mockChats, initialRooms } from './data/mockData';
+import { ChatHistory } from './services/histories/types';
 
 function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
@@ -16,16 +16,17 @@ function App() {
   const [chatMessages, setChatMessages] = useState<Record<string, ChatData[]>>(mockChats);
   const [chatMarkers, setChatMarkers] = useState<Record<string, ChatHistory[]>>({});
   const [conversationsState, setConversationsState] = useState<Room[]>(initialRooms);
+  const [isAdmin] = useState(true); // In a real app, this would come from auth
 
   const toggleColorScheme = (value?: ColorScheme) =>
-      setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
   const handleSelectConversation = (id: string) => {
     setActiveConversationId(id);
 
     if (conversationsState.find(c => c.id === id)?.unreadCount) {
       const updatedConversations = conversationsState.map(conv =>
-          conv.id === id ? { ...conv, unreadCount: 0 } : conv
+        conv.id === id ? { ...conv, unreadCount: 0 } : conv
       );
       setConversationsState(updatedConversations);
     }
@@ -41,9 +42,9 @@ function App() {
       id: `msg-${Date.now()}`,
       createdAt: new Date(),
       text: content,
-      isAdmin: true, // asumsi current user adalah admin
+      isAdmin: isAdmin,
       isRead: false,
-      history: null as any, // sesuaikan jika ada histories
+      history: null as any,
       room,
     };
 
@@ -52,6 +53,7 @@ function App() {
       [activeConversationId]: [...(prev[activeConversationId] || []), newMessage]
     }));
 
+    // Mark message as read after a delay
     setTimeout(() => {
       setChatMessages(prev => {
         const updatedMessages = [...(prev[activeConversationId] || [])];
@@ -67,13 +69,14 @@ function App() {
       });
     }, 1000);
 
-    if (Math.random() > 0.5) {
+    // Simulate user reply
+    if (!isAdmin && Math.random() > 0.5) {
       setTimeout(() => {
         const replyMessage: ChatData = {
           id: `msg-reply-${Date.now()}`,
           createdAt: new Date(),
           text: `Thanks for your message: "${content.substring(0, 20)}${content.length > 20 ? '...' : ''}"`,
-          isAdmin: false,
+          isAdmin: true,
           isRead: false,
           history: null as any,
           room,
@@ -98,22 +101,15 @@ function App() {
     status: RoomStatus.RESOLVED
   };
 
-
-  // Button Logic
-  const hasNewUserMessages = (roomId: string) => {
-    const messages = chatMessages[roomId] || [];
-    return messages.some(msg => !msg.isRead && !msg.isAdmin);
-  };
-
+  // Update room status when new messages arrive
   useEffect(() => {
     setConversationsState(prev => {
       return prev.map(room => {
-        if (hasNewUserMessages(room.id)) {
-          // Trigger NEW_REQUEST hanya kalau status bukan NEW_REQUEST
-          // dan status sebelumnya FOLLOWED_UP / RESOLVED (bukan NEW_REQUEST)
-          if (room.status !== RoomStatus.NEW_REQUEST) {
-            return { ...room, status: RoomStatus.NEW_REQUEST };
-          }
+        const messages = chatMessages[room.id] || [];
+        const hasNewUserMessages = messages.some(msg => !msg.isRead && !msg.isAdmin);
+        
+        if (hasNewUserMessages && room.status === RoomStatus.RESOLVED) {
+          return { ...room, status: RoomStatus.NEW_REQUEST };
         }
         return room;
       });
@@ -121,65 +117,57 @@ function App() {
   }, [chatMessages]);
 
   return (
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-        <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
-          <Layout
-              sidebar={
-                <ConversationList
-                    conversations={conversationsState}
-                    activeConversationId={activeConversationId}
-                    onSelectConversation={handleSelectConversation}
-                />
-              }
-              main={
-                activeConversation ? (
-                    <Chat
-                        room={activeConversation}
-                        messages={activeMessages}
-                        history={lastHistory ?? defaultHistory}
-                        onSendMessage={handleSendMessage}
-                        onUpdateStatus={(newStatus) => {
-                          if (!activeConversationId) return;
-
-                          const now = new Date();
-                          const newMarker: ChatHistory = {
-                            id: `marker-${Date.now()}`,
-                            createdAt: now,
-                            room: activeConversation,
-                            status: newStatus,
-                          };
-
-                          setChatMarkers(prev => ({
-                            ...prev,
-                            [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
-                          }));
-
-                          setConversationsState(prev =>
-                              prev.map(conv =>
-                                  conv.id === activeConversationId
-                                      ? {
-                                        ...conv,
-                                        status:
-                                            newStatus === RoomStatus.FOLLOWED_UP
-                                                ? RoomStatus.FOLLOWED_UP
-                                                : newStatus === RoomStatus.RESOLVED
-                                                    ? RoomStatus.RESOLVED
-                                                    : conv.status,
-                                      }
-                                      : conv
-                              )
-                          );
-                        }}
-                    />
-
-                ) : (
-                    <EmptyState />
-                )
-              }
+    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+      <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
+        <Layout
+          sidebar={isAdmin && (
+            <ConversationList
+              conversations={conversationsState}
               activeConversationId={activeConversationId}
-          />
-        </MantineProvider>
-      </ColorSchemeProvider>
+              onSelectConversation={handleSelectConversation}
+            />
+          )}
+          main={
+            activeConversation ? (
+              <Chat
+                room={activeConversation}
+                messages={activeMessages}
+                history={lastHistory ?? defaultHistory}
+                onSendMessage={handleSendMessage}
+                onUpdateStatus={(newStatus) => {
+                  if (!activeConversationId) return;
+
+                  const now = new Date();
+                  const newMarker: ChatHistory = {
+                    id: `marker-${Date.now()}`,
+                    createdAt: now,
+                    room: activeConversation,
+                    status: newStatus,
+                  };
+
+                  setChatMarkers(prev => ({
+                    ...prev,
+                    [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
+                  }));
+
+                  setConversationsState(prev =>
+                    prev.map(conv =>
+                      conv.id === activeConversationId
+                        ? { ...conv, status: newStatus }
+                        : conv
+                    )
+                  );
+                }}
+                isAdmin={isAdmin}
+              />
+            ) : (
+              <EmptyState />
+            )
+          }
+          activeConversationId={activeConversationId}
+        />
+      </MantineProvider>
+    </ColorSchemeProvider>
   );
 }
 

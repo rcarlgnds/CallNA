@@ -1,4 +1,3 @@
-// src/data/mockData.ts
 import { Room, RoomStatus } from '../services/rooms/types';
 import { ChatData } from '../services/chats/types';
 import { ChatHistory } from '../services/histories/types';
@@ -19,7 +18,7 @@ export const initialRooms: Room[] = [
     id: 'room-611',
     roomName: '611',
     status: RoomStatus.NEW_REQUEST,
-    lastMessage: 'Here’s the file you requested.',
+    lastMessage: 'Here's the file you requested.',
     lastMessageTimestamp: '11:00',
     unreadCount: 2,
     lastMessageSenderId: 'user-611',
@@ -34,7 +33,6 @@ export const initialRooms: Room[] = [
     lastMessageSenderId: 'admin',
   },
 ];
-
 
 const defaultHistory1: ChatHistory = {
   id: 'history-600-1',
@@ -56,7 +54,6 @@ const defaultHistory3: ChatHistory = {
   status: RoomStatus.RESOLVED,
   createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
 };
-
 
 export const mockChats: Record<string, ChatData[]> = {
   'room-600': [
@@ -92,7 +89,7 @@ export const mockChats: Record<string, ChatData[]> = {
     {
       id: 'chat-611-1',
       createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000),
-      text: 'Here’s the file you requested.',
+      text: 'Here's the file you requested.',
       isAdmin: false,
       isRead: false,
       room: initialRooms[1],
@@ -111,3 +108,6 @@ export const mockChats: Record<string, ChatData[]> = {
     },
   ],
 };
+
+// Notification sound for new messages
+export const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
