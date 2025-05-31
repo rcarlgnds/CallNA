@@ -18,7 +18,7 @@ export const initialRooms: Room[] = [
     id: 'room-611',
     roomName: '611',
     status: RoomStatus.NEW_REQUEST,
-    lastMessage: 'Here's the file you requested.',
+    lastMessage: 'Here\'s the file you requested.',
     lastMessageTimestamp: '11:00',
     unreadCount: 2,
     lastMessageSenderId: 'user-611',
@@ -89,7 +89,7 @@ export const mockChats: Record<string, ChatData[]> = {
     {
       id: 'chat-611-1',
       createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000),
-      text: 'Here's the file you requested.',
+      text: 'Here\'s the file you requested.',
       isAdmin: false,
       isRead: false,
       room: initialRooms[1],
