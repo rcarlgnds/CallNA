@@ -39,7 +39,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   const handleQuickMessageSelect = (content: string) => {
-    onSendMessage(content);
+    setMessage(content);
     setShowQuickMessages(false);
   };
 
@@ -63,8 +63,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
         onSubmit={handleSubmit}
         sx={(theme) => ({
           padding: theme.spacing.md,
-          borderTop: `1px solid ${theme.colors.gray[2]}`,
+          borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
           position: 'relative',
+          backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
         })}
       >
         <Transition
@@ -114,7 +115,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             styles={(theme) => ({
               input: {
                 borderRadius: theme.radius.xl,
-                backgroundColor: theme.colors.gray[1],
+                backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
                 border: 'none',
                 '&:focus': {
                   border: 'none',

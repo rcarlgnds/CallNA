@@ -6,25 +6,28 @@ interface AIRecommendationProps {
   recommendation: string;
   onAccept: (text: string) => void;
   onClose: () => void;
+  style?: React.CSSProperties;
 }
 
 const AIRecommendation: React.FC<AIRecommendationProps> = ({
   recommendation,
   onAccept,
   onClose,
+  style,
 }) => {
   return (
     <Paper
       shadow="md"
       p="md"
+      style={style}
       sx={(theme) => ({
         position: 'absolute',
         bottom: '100%',
         left: 0,
         right: 0,
         marginBottom: theme.spacing.xs,
-        backgroundColor: theme.colors.gray[0],
-        border: `1px solid ${theme.colors.gray[2]}`,
+        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+        border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
         borderRadius: theme.radius.md,
       })}
     >
@@ -54,5 +57,3 @@ const AIRecommendation: React.FC<AIRecommendationProps> = ({
     </Paper>
   );
 };
-
-export default AIRecommendation;

@@ -9,10 +9,10 @@ interface ConversationItemProps {
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
-                                                               conversation,
-                                                               isActive,
-                                                               onClick
-                                                           }) => {
+    conversation,
+    isActive,
+    onClick
+}) => {
     const {
         id,
         roomName,
@@ -28,9 +28,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                 padding: theme.spacing.md,
                 borderRadius: theme.radius.md,
                 width: '100%',
-                backgroundColor: isActive ? theme.colors.gray[1] : 'transparent',
+                backgroundColor: isActive 
+                    ? theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1]
+                    : 'transparent',
                 '&:hover': {
-                    backgroundColor: isActive ? theme.colors.gray[1] : theme.colors.gray[0],
+                    backgroundColor: isActive 
+                        ? theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1]
+                        : theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
                 },
                 transition: 'background-color 200ms ease',
             })}
@@ -54,7 +58,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                                 height: 10,
                                 borderRadius: '50%',
                                 backgroundColor: theme.colors[RoomStatusColor[status]][6],
-                                border: `2px solid ${theme.white}`,
+                                border: `2px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white}`,
                             })}
                         />
                     </Box>
@@ -95,5 +99,3 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         </UnstyledButton>
     );
 };
-
-export default ConversationItem;
