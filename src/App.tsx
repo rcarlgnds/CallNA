@@ -9,6 +9,8 @@ import { Room, RoomStatus } from './services/rooms/types';
 import EmptyState from './components/EmptyState';
 import { mockChats, initialRooms } from './data/mockData';
 import { ChatHistory } from './services/histories/types';
+import LoginPage from './pages/LoginPage';
+import { useAuthStore } from './store/authStore';
 
 function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
@@ -16,10 +18,19 @@ function App() {
   const [chatMessages, setChatMessages] = useState<Record<string, ChatData[]>>(mockChats);
   const [chatMarkers, setChatMarkers] = useState<Record<string, ChatHistory[]>>({});
   const [conversationsState, setConversationsState] = useState<Room[]>(initialRooms);
-  const [isAdmin] = useState(true); // In a real app, this would come from auth
+  
+  const role = useAuthStore((state) => state.role);
+  const isAdmin = role === 'admin';
 
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+
+  // For user role, automatically select the first room
+  useEffect(() => {
+    if (role === 'user' && !activeConversationId && initialRooms.length > 0) {
+      setActiveConversationId(initialRooms[0].id);
+    }
+  }, [role, activeConversationId]);
 
   const handleSelectConversation = (id: string) => {
     setActiveConversationId(id);
@@ -42,7 +53,7 @@ function App() {
       id: `msg-${Date.now()}`,
       createdAt: new Date(),
       text: content,
-      isAdmin: isAdmin,
+      isAdmin,
       isRead: false,
       history: null as any,
       room,
@@ -53,7 +64,6 @@ function App() {
       [activeConversationId]: [...(prev[activeConversationId] || []), newMessage]
     }));
 
-    // Mark message as read after a delay
     setTimeout(() => {
       setChatMessages(prev => {
         const updatedMessages = [...(prev[activeConversationId] || [])];
@@ -69,7 +79,6 @@ function App() {
       });
     }, 1000);
 
-    // Simulate user reply
     if (!isAdmin && Math.random() > 0.5) {
       setTimeout(() => {
         const replyMessage: ChatData = {
@@ -101,7 +110,6 @@ function App() {
     status: RoomStatus.RESOLVED
   };
 
-  // Update room status when new messages arrive
   useEffect(() => {
     setConversationsState(prev => {
       return prev.map(room => {
@@ -115,6 +123,16 @@ function App() {
       });
     });
   }, [chatMessages]);
+
+  if (!role) {
+    return (
+      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+        <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
+          <LoginPage />
+        </MantineProvider>
+      </ColorSchemeProvider>
+    );
+  }
 
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
