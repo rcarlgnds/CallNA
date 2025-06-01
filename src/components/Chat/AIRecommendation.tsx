@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Group, Paper, Text } from '@mantine/core';
+import { Button, Group, Paper, Text } from '@mantine/core';
 import { X } from 'lucide-react';
 
 interface AIRecommendationProps {

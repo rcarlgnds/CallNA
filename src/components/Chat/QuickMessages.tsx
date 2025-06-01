@@ -34,7 +34,8 @@ const QuickMessages: React.FC<QuickMessagesProps> = ({ onSelect, className, styl
             p="md"
             shadow="md"
         >
-            <Stack spacing="xs">
+
+        <Stack spacing="xs">
                 {Object.entries(
                     quickMessages.reduce<Record<string, QuickMessage[]>>((acc, message) => {
                         if (!acc[message.category]) acc[message.category] = [];
@@ -65,4 +66,4 @@ const QuickMessages: React.FC<QuickMessagesProps> = ({ onSelect, className, styl
     );
 };
 
-export default QuickMessages
+export default QuickMessages;
