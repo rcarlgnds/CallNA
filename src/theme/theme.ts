@@ -49,7 +49,6 @@ export const theme: MantineThemeOverride = {
     }
   },
   other: {
-    // Add transition for color scheme changes
-    colorSchemeTransition: 'all 0.3s ease-in-out'
+    colorSchemeTransition: 'background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out'
   }
 };

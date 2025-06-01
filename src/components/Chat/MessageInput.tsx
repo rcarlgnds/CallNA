@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ActionIcon, Box, Group, TextInput, Transition, Text } from '@mantine/core';
-import { Smile, Plus, Send, Image } from 'lucide-react';
+import { Plus, Send, Image } from 'lucide-react';
 import QuickMessages from './QuickMessages';
 import ChatActions from './ChatActions';
 import AIRecommendation from './AIRecommendation';
@@ -133,16 +133,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
           )}
         </Transition>
 
-        <Transition mounted={showAIRecommendation} transition="slide-up" duration={200}>
-          {(styles) => (
-            <AIRecommendation
-              recommendation="Thank you for your message. I understand your concern and I'll help you resolve this issue."
-              onAccept={handleAIRecommendation}
-              onClose={() => setShowAIRecommendation(false)}
-              style={styles}
-            />
-          )}
-        </Transition>
+        {isAdmin && (
+          <Transition mounted={showAIRecommendation} transition="slide-up" duration={200}>
+            {(styles) => (
+              <AIRecommendation
+                recommendation="Thank you for your message. I understand your concern and I'll help you resolve this issue."
+                onAccept={handleAIRecommendation}
+                onClose={() => setShowAIRecommendation(false)}
+                style={styles}
+              />
+            )}
+          </Transition>
+        )}
 
         <Group position="apart" spacing="xs" noWrap>
           <Group spacing="xs">
@@ -152,6 +154,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
               variant="subtle"
               radius="xl"
               onClick={() => setShowQuickMessages(!showQuickMessages)}
+              sx={(theme) => ({
+                transform: showQuickMessages ? 'rotate(45deg)' : 'rotate(0deg)',
+                transition: 'transform 0.3s ease',
+              })}
             >
               <Plus size={20} />
             </ActionIcon>
@@ -187,15 +193,17 @@ const MessageInput: React.FC<MessageInputProps> = ({
           />
 
           <Group spacing="xs" noWrap>
-            <ActionIcon
-              size="lg"
-              color="gray"
-              variant="subtle"
-              radius="xl"
-              onClick={() => setShowAIRecommendation(true)}
-            >
-              <Smile size={20} />
-            </ActionIcon>
+            {isAdmin && (
+              <ActionIcon
+                size="lg"
+                color="gray"
+                variant="subtle"
+                radius="xl"
+                onClick={() => setShowAIRecommendation(true)}
+              >
+                <Plus size={20} />
+              </ActionIcon>
+            )}
 
             <ActionIcon
               size="lg"

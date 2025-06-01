@@ -17,11 +17,25 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
         height: '100vh',
         overflow: 'hidden',
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
+        transition: theme.other.colorSchemeTransition,
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: theme.colorScheme === 'dark'
+            ? 'radial-gradient(circle at 50% 50%, rgba(25, 113, 194, 0.05) 0%, rgba(25, 113, 194, 0) 70%)'
+            : 'radial-gradient(circle at 50% 50%, rgba(62, 184, 121, 0.05) 0%, rgba(62, 184, 121, 0) 70%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        },
       })}
     >
       <Navbar />
-      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Sidebar - Hide on mobile when conversation is active */}
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
         <MediaQuery 
           smallerThan="md" 
           styles={{ 
@@ -35,13 +49,13 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
               borderRight: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
               overflow: 'hidden',
               backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+              transition: theme.other.colorSchemeTransition,
             })}
           >
             {sidebar}
           </Box>
         </MediaQuery>
         
-        {/* Main content - Full width on mobile */}
         <MediaQuery 
           smallerThan="md" 
           styles={{ 
@@ -54,6 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
               flex: 1, 
               overflow: 'hidden',
               backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+              transition: theme.other.colorSchemeTransition,
             })}
           >
             {main}
