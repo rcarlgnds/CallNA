@@ -12,7 +12,7 @@ export const theme: MantineThemeOverride = {
       '#7DD6AA',
       '#5ACB93',
       '#37C07C',
-      '#06C755', // Primary (Line brand color)
+      '#06C755',
       '#05A347',
       '#048039',
       '#035C2B'
@@ -47,5 +47,9 @@ export const theme: MantineThemeOverride = {
         radius: 'md',
       }
     }
+  },
+  other: {
+    // Add transition for color scheme changes
+    colorSchemeTransition: 'all 0.3s ease-in-out'
   }
 };

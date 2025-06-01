@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Input, ScrollArea, Stack, Text } from '@mantine/core';
 import { Search } from 'lucide-react';
 import { Conversation } from '../../types';
@@ -15,6 +15,12 @@ const ConversationList: React.FC<ConversationListProps> = ({
   activeConversationId, 
   onSelectConversation 
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredConversations = conversations.filter(conversation =>
+    conversation.roomName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Stack spacing={0} sx={{ height: '100%' }}>
       <Box p="md">
@@ -23,6 +29,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
           icon={<Search size={16} />}
           size="md"
           radius="xl"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </Box>
       
@@ -32,7 +40,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       
       <ScrollArea sx={{ flex: 1 }} type="auto">
         <Stack spacing={0}>
-          {conversations.map((conversation) => (
+          {filteredConversations.map((conversation) => (
             <ConversationItem
               key={conversation.id}
               conversation={conversation}

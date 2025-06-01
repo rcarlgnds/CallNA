@@ -22,10 +22,18 @@ function App() {
   const role = useAuthStore((state) => state.role);
   const isAdmin = role === 'admin';
 
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+  const toggleColorScheme = (value?: ColorScheme) => {
+    const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
+    document.documentElement.style.setProperty(
+      'transition',
+      theme.other.colorSchemeTransition
+    );
+    setColorScheme(newColorScheme);
+    setTimeout(() => {
+      document.documentElement.style.removeProperty('transition');
+    }, 300);
+  };
 
-  // For user role, automatically select the first room
   useEffect(() => {
     if (role === 'user' && !activeConversationId && initialRooms.length > 0) {
       setActiveConversationId(initialRooms[0].id);
@@ -48,7 +56,6 @@ function App() {
 
     const room = conversationsState.find(c => c.id === activeConversationId);
     if (!room) return;
-
 
     let imageUrl: string | undefined;
     if (file) {
@@ -161,41 +168,26 @@ function App() {
           )}
           main={
             activeConversation ? (
-                <Chat
-                    room={activeConversation}
-                    messages={activeMessages}
-                    history={lastHistory ?? defaultHistory}
-                    chatMarkers={activeMarkers}
-                    onSendMessage={handleSendMessage}
-                    onUpdateStatus={(newStatus) => {
-                      if (!activeConversationId) return;
+              <Chat
+                room={activeConversation}
+                messages={activeMessages}
+                history={lastHistory ?? defaultHistory}
+                chatMarkers={activeMarkers}
+                onSendMessage={handleSendMessage}
+                onUpdateStatus={(newStatus) => {
+                  if (!activeConversationId) return;
 
-                      const now = new Date();
-                      const newMarker: ChatHistory = {
-                        id: `marker-${now.getTime()}`,
-                        createdAt: now,
-                        room: activeConversation,
-                        status: newStatus,
-                      };
-
-                      // Set marker di state global chatMarkers
-                      setChatMarkers(prev => ({
-                        ...prev,
-                        [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
-                      }));
-
-                      // Update status di conversationsState
-                      setConversationsState(prev =>
-                          prev.map(conv =>
-                              conv.id === activeConversationId
-                                  ? { ...conv, status: newStatus }
-                                  : conv
-                          )
-                      );
-                    }}
-                    onAddMarker={(marker) => handleAddMarker(activeConversationId!, marker)}
-                    isAdmin={isAdmin}
-                />
+                  setConversationsState(prev =>
+                    prev.map(conv =>
+                      conv.id === activeConversationId
+                        ? { ...conv, status: newStatus }
+                        : conv
+                    )
+                  );
+                }}
+                onAddMarker={(marker) => handleAddMarker(activeConversationId!, marker)}
+                isAdmin={isAdmin}
+              />
             ) : (
               <EmptyState />
             )
