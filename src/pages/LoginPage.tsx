@@ -47,10 +47,9 @@ const LoginPage: React.FC = () => {
                         ? 'linear-gradient(135deg, #1a1b1e 0%, #2c2e33 100%)'
                         : 'linear-gradient(135deg, #e0f7ec 0%, #ffffff 100%)',
                 position: 'relative',
+                transition: theme.other.colorSchemeTransition,
             }}
         >
-
-        {/* Theme Toggle Button */}
             <ActionIcon
                 variant="outline"
                 color={colorScheme === 'dark' ? 'yellow' : 'blue'}
@@ -60,6 +59,7 @@ const LoginPage: React.FC = () => {
                     position: 'absolute',
                     top: 20,
                     right: 20,
+                    transition: theme.other.colorSchemeTransition,
                 }}
             >
                 {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
@@ -73,17 +73,18 @@ const LoginPage: React.FC = () => {
                 }}
             >
                 <Paper
-                    sx={{
+                    sx={(theme) => ({
                         backgroundColor: theme.colorScheme === 'dark'
                             ? theme.colors.dark[7]
                             : theme.white,
-                    }}
+                        transition: theme.other.colorSchemeTransition,
+                    })}
                     shadow="md"
                     radius="lg"
                     p="xl"
                     withBorder
                 >
-                    <Stack spacing="md" >
+                    <Stack spacing="md">
                         <Title
                             order={2}
                             align="center"

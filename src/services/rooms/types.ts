@@ -6,8 +6,8 @@ export enum RoomStatus {
 
 export const RoomStatusColor: Record<RoomStatus, string> = {
     [RoomStatus.NEW_REQUEST]: 'red',
-    [RoomStatus.FOLLOWED_UP]: 'yellow',
-    [RoomStatus.RESOLVED]: 'green',
+    [RoomStatus.FOLLOWED_UP]: 'green',
+    [RoomStatus.RESOLVED]: 'blue',
 };
 
 export interface Room {
