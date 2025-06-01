@@ -43,11 +43,17 @@ function App() {
     }
   };
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = (content: string, file?: File) => {
     if (!activeConversationId) return;
 
     const room = conversationsState.find(c => c.id === activeConversationId);
     if (!room) return;
+
+
+    let imageUrl: string | undefined;
+    if (file) {
+      imageUrl = URL.createObjectURL(file);
+    }
 
     const newMessage: ChatData = {
       id: `msg-${Date.now()}`,
@@ -57,6 +63,7 @@ function App() {
       isRead: false,
       history: null as any,
       room,
+      imageUrl,
     };
 
     setChatMessages(prev => ({
@@ -115,7 +122,7 @@ function App() {
       return prev.map(room => {
         const messages = chatMessages[room.id] || [];
         const hasNewUserMessages = messages.some(msg => !msg.isRead && !msg.isAdmin);
-        
+
         if (hasNewUserMessages && room.status === RoomStatus.RESOLVED) {
           return { ...room, status: RoomStatus.NEW_REQUEST };
         }
@@ -134,6 +141,13 @@ function App() {
     );
   }
 
+  const handleAddMarker = (roomId: string, marker: ChatHistory) => {
+    setChatMarkers(prev => ({
+      ...prev,
+      [roomId]: [...(prev[roomId] || []), marker],
+    }));
+  };
+
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
@@ -147,37 +161,41 @@ function App() {
           )}
           main={
             activeConversation ? (
-              <Chat
-                room={activeConversation}
-                messages={activeMessages}
-                history={lastHistory ?? defaultHistory}
-                onSendMessage={handleSendMessage}
-                onUpdateStatus={(newStatus) => {
-                  if (!activeConversationId) return;
+                <Chat
+                    room={activeConversation}
+                    messages={activeMessages}
+                    history={lastHistory ?? defaultHistory}
+                    chatMarkers={activeMarkers}
+                    onSendMessage={handleSendMessage}
+                    onUpdateStatus={(newStatus) => {
+                      if (!activeConversationId) return;
 
-                  const now = new Date();
-                  const newMarker: ChatHistory = {
-                    id: `marker-${Date.now()}`,
-                    createdAt: now,
-                    room: activeConversation,
-                    status: newStatus,
-                  };
+                      const now = new Date();
+                      const newMarker: ChatHistory = {
+                        id: `marker-${now.getTime()}`,
+                        createdAt: now,
+                        room: activeConversation,
+                        status: newStatus,
+                      };
 
-                  setChatMarkers(prev => ({
-                    ...prev,
-                    [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
-                  }));
+                      // Set marker di state global chatMarkers
+                      setChatMarkers(prev => ({
+                        ...prev,
+                        [activeConversationId]: [...(prev[activeConversationId] || []), newMarker],
+                      }));
 
-                  setConversationsState(prev =>
-                    prev.map(conv =>
-                      conv.id === activeConversationId
-                        ? { ...conv, status: newStatus }
-                        : conv
-                    )
-                  );
-                }}
-                isAdmin={isAdmin}
-              />
+                      // Update status di conversationsState
+                      setConversationsState(prev =>
+                          prev.map(conv =>
+                              conv.id === activeConversationId
+                                  ? { ...conv, status: newStatus }
+                                  : conv
+                          )
+                      );
+                    }}
+                    onAddMarker={(marker) => handleAddMarker(activeConversationId!, marker)}
+                    isAdmin={isAdmin}
+                />
             ) : (
               <EmptyState />
             )

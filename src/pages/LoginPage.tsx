@@ -1,85 +1,142 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, Paper, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
+import {
+    Box,
+    Button,
+    Container,
+    Paper,
+    Stack,
+    Text,
+    TextInput,
+    useMantineTheme,
+    Title,
+    ActionIcon,
+} from '@mantine/core';
+import { IconUser, IconLock, IconSun, IconMoon } from '@tabler/icons-react';
 import { useAuthStore } from '../store/authStore';
+import { useMantineColorScheme } from '@mantine/core';
 
 const LoginPage: React.FC = () => {
-  const theme = useMantineTheme();
-  const setRole = useAuthStore((state) => state.setRole);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+    const theme = useMantineTheme();
+    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+    const setRole = useAuthStore((state) => state.setRole);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (role: 'admin' | 'user') => {
-    if (!username || !password) return;
-    setRole(role);
-  };
+    const handleLogin = () => {
+        if (!username || !password) return;
 
-  return (
-    <Box 
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-      }}
-    >
-      <Container size="xs">
-        <Paper
-          radius="md"
-          p="xl"
-          withBorder
-          sx={{
-            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-          }}
+        if (username === 'admin' && password === 'admin') {
+            setRole('admin');
+        } else if (username === 'user' && password === 'user') {
+            setRole('user');
+        } else {
+            setError('Invalid credentials.');
+        }
+    };
+
+    return (
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background:
+                    theme.colorScheme === 'dark'
+                        ? 'linear-gradient(135deg, #1a1b1e 0%, #2c2e33 100%)'
+                        : 'linear-gradient(135deg, #e0f7ec 0%, #ffffff 100%)',
+                position: 'relative',
+            }}
         >
-          <Text size="xl" weight={700} align="center" mb="xl" color="green.6">
-            CallNA Chat
-          </Text>
-          
-          <Stack spacing="md">
-            <TextInput
-              label="Username"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            
-            <TextInput
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
 
-            <Button
-              size="lg"
-              onClick={() => handleLogin('admin')}
-              variant="filled"
-              color="green"
-              fullWidth
-              disabled={!username || !password}
+        {/* Theme Toggle Button */}
+            <ActionIcon
+                variant="outline"
+                color={colorScheme === 'dark' ? 'yellow' : 'blue'}
+                onClick={() => toggleColorScheme()}
+                title="Toggle theme"
+                sx={{
+                    position: 'absolute',
+                    top: 20,
+                    right: 20,
+                }}
             >
-              Login as Admin
-            </Button>
-            
-            <Button
-              size="lg"
-              onClick={() => handleLogin('user')}
-              variant="light"
-              color="gray"
-              fullWidth
-              disabled={!username || !password}
+                {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+            </ActionIcon>
+
+            <Container
+                px="md"
+                sx={{
+                    width: '100%',
+                    maxWidth: 500,
+                }}
             >
-              Login as User
-            </Button>
-          </Stack>
-        </Paper>
-      </Container>
-    </Box>
-  );
+                <Paper
+                    sx={{
+                        backgroundColor: theme.colorScheme === 'dark'
+                            ? theme.colors.dark[7]
+                            : theme.white,
+                    }}
+                    shadow="md"
+                    radius="lg"
+                    p="xl"
+                    withBorder
+                >
+                    <Stack spacing="md" >
+                        <Title
+                            order={2}
+                            align="center"
+                            sx={{
+                                background: 'linear-gradient(to right, #38b2ac, #38a169)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                fontWeight: 800,
+                            }}
+                        >
+                            CallNA
+                        </Title>
+
+                        <TextInput
+                            label="Username"
+                            placeholder="Enter your username"
+                            icon={<IconUser size={18} />}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+
+                        <TextInput
+                            label="Password"
+                            placeholder="Enter your password"
+                            icon={<IconLock size={18} />}
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+
+                        {error && (
+                            <Text color="red" size="sm" align="center">
+                                {error}
+                            </Text>
+                        )}
+
+                        <Button
+                            fullWidth
+                            size="sm"
+                            onClick={handleLogin}
+                            variant="gradient"
+                            gradient={{ from: 'teal', to: 'green', deg: 120 }}
+                            disabled={!username || !password}
+                        >
+                            Login
+                        </Button>
+                    </Stack>
+                </Paper>
+            </Container>
+        </Box>
+    );
 };
 
 export default LoginPage;
