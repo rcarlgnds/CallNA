@@ -188,7 +188,7 @@ const LoginPage: React.FC = () => {
                         />
 
                         {error && (
-                            <Text color="red" size="sm" align="center">
+                            <Text color="red\" size="sm\" align="center">
                                 {error}
                             </Text>
                         )}
