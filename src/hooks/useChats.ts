@@ -9,7 +9,6 @@ export const useChats = (roomId?: string, isAdmin = false) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use different subscriptions based on user role
   const { data: newChat } = useSubscription(
     isAdmin ? CHAT_SENDED_ADMIN_SUBSCRIPTION : CHAT_SENDED_SUBSCRIPTION,
     {

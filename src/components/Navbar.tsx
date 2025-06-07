@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
                     </Text>
                     {username && (
                         <Text size="sm" color="dimmed">
-                            Welcome, {username} ({role})
+                            Welcome, {username}
                         </Text>
                     )}
                 </Group>

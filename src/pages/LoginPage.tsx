@@ -10,7 +10,6 @@ import {
     useMantineTheme,
     Title,
     ActionIcon,
-    Select,
     Loader,
 } from '@mantine/core';
 import { IconUser, IconLock, IconSun, IconMoon } from '@tabler/icons-react';
@@ -28,7 +27,6 @@ const LoginPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -61,7 +59,6 @@ const LoginPage: React.FC = () => {
             return;
         }
 
-        // User login - check if username matches any room name
         const matchingRoom = rooms.find(room => 
             room.roomName.toLowerCase() === username.toLowerCase() && 
             room.roomName.toLowerCase() === password.toLowerCase()
@@ -153,20 +150,6 @@ const LoginPage: React.FC = () => {
                         >
                             CallNA
                         </Title>
-
-                        <Text size="sm" color="dimmed" align="center">
-                            Admin: username=admin, password=admin<br/>
-                            User: Use room name as both username and password
-                        </Text>
-
-                        {rooms.length > 0 && (
-                            <Box>
-                                <Text size="sm" weight={500} mb="xs">Available Rooms:</Text>
-                                <Text size="xs" color="dimmed">
-                                    {rooms.map(room => room.roomName).join(', ')}
-                                </Text>
-                            </Box>
-                        )}
 
                         <TextInput
                             label="Username"

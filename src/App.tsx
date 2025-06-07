@@ -10,7 +10,7 @@ import { useAuthStore } from './store/authStore';
 import { useRooms } from './hooks/useRooms';
 import { useChats } from './hooks/useChats';
 import { chatService } from './services/api/chatService';
-import { Status, Chat as ChatType, History } from './services/types';
+import { Status, History } from './services/types';
 
 function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
@@ -20,8 +20,8 @@ function App() {
   const { role, roomId } = useAuthStore();
   const isAdmin = role === 'admin';
 
-  const { rooms, loading: roomsLoading } = useRooms();
-  const { chats, loading: chatsLoading } = useChats(activeConversationId || undefined, isAdmin);
+  const { rooms} = useRooms();
+  const { chats} = useChats(activeConversationId || undefined, isAdmin);
 
   console.log("Rooms: ", rooms);
   console.log("Current role:", role);
@@ -31,7 +31,7 @@ function App() {
     const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
     document.documentElement.style.setProperty(
         'transition',
-        theme.other.colorSchemeTransition
+        theme.other!.colorSchemeTransition
     );
     setColorScheme(newColorScheme);
     setTimeout(() => {
@@ -41,10 +41,8 @@ function App() {
 
   useEffect(() => {
     if (role === 'user' && roomId && !activeConversationId) {
-      // For users, set their specific room as active
       setActiveConversationId(roomId);
     } else if (role === 'admin' && !activeConversationId && rooms.length > 0) {
-      // For admin, set first room as active
       setActiveConversationId(rooms[0].id);
     }
   }, [role, roomId, activeConversationId, rooms]);
@@ -91,10 +89,9 @@ function App() {
   };
 
   const handleUpdateStatus = (newStatus: Status) => {
-    // Optional: handle status locally
+
   };
 
-  // Filter rooms for users - they should only see their own room
   const filteredRooms = isAdmin ? rooms : rooms.filter(room => room.id === roomId);
 
   return (

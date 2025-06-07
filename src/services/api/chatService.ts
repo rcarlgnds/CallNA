@@ -9,7 +9,6 @@ export const chatService = {
       const { data } = await apolloClient.query({
         query: GET_CHATS,
         variables: { roomId, skip, take },
-        fetchPolicy: 'cache-and-network',
       });
       return data.chats || [];
     } catch (error) {
@@ -20,7 +19,6 @@ export const chatService = {
 
   async createChat(input: CreateChatInput): Promise<Chat | null> {
     try {
-      // Convert File to base64 if present
       let fileData = null;
       if (input.file) {
         const base64 = await new Promise<string>((resolve) => {
