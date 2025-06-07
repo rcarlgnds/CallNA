@@ -8,7 +8,6 @@ export const roomService = {
     try {
       const { data } = await apolloClient.query({
         query: GET_ROOMS,
-        fetchPolicy: 'cache-and-network',
       });
       return data.rooms;
     } catch (error) {
