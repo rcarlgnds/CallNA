@@ -3,14 +3,14 @@ import { Box, Stack, Text } from '@mantine/core';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { Room, Status, Chat, History } from '../../services/types';
+import { Room, Status, Chat as ChatType, History } from '../../services/types';
 import { chatService } from '../../services/api/chatService';
 import { roomService } from '../../services/api/roomService';
 import { historyService } from '../../services/api/historyService';
 
 interface ChatProps {
   room: Room;
-  messages: Chat[];
+  messages: ChatType[];
   chatMarkers: History[];
   onSendMessage: (message: string, file?: File) => void;
   onUpdateStatus: (status: Status) => void;
