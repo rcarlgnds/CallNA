@@ -108,7 +108,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                 </Group>
                 <Stack spacing={5} align="flex-end">
                     {lastMessageTime && (
-                        <Text size="xs" color="dimmed">
+                        <Text size="xs\" color="dimmed">
                             {lastMessageTime}
                         </Text>
                     )}

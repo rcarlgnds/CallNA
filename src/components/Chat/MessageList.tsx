@@ -50,7 +50,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, markers = [], curre
                 <Box key={`${item.status}-${item.id}`} my="md">
                   <Divider
                       label={
-                        <Text size="xs" color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
+                        <Text size="xs\" color="dimmed\" sx={{ whiteSpace: 'nowrap' }}>
                           {item.status === 'FOLLOW_UP' ? 'Followed-up' : 'Resolved'} at{' '}
                           {format(new Date(item.createdAt), 'h:mm a')}
                         </Text>
