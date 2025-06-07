@@ -26,7 +26,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <Box p="md">
         <Input
           placeholder="Search Room"
-          icon={<Search size={16} />}
+          icon={<Search size={15} />}
           size="md"
           radius="xl"
           value={searchQuery}
@@ -35,7 +35,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </Box>
       
       <Text size="xs" weight={500} color="dimmed" px="md" py="xs">
-        CHATS
+          CHAT ROOMS
       </Text>
       
       <ScrollArea sx={{ flex: 1 }} type="auto">
