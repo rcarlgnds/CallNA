@@ -17,13 +17,15 @@ function App() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [chatMarkers, setChatMarkers] = useState<Record<string, History[]>>({});
 
-  const role = useAuthStore((state) => state.role);
+  const { role, roomId } = useAuthStore();
   const isAdmin = role === 'admin';
 
   const { rooms, loading: roomsLoading } = useRooms();
   const { chats, loading: chatsLoading } = useChats(activeConversationId || undefined, isAdmin);
 
   console.log("Rooms: ", rooms);
+  console.log("Current role:", role);
+  console.log("Room ID:", roomId);
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
@@ -38,10 +40,14 @@ function App() {
   };
 
   useEffect(() => {
-    if (role === 'user' && !activeConversationId && rooms.length > 0) {
+    if (role === 'user' && roomId && !activeConversationId) {
+      // For users, set their specific room as active
+      setActiveConversationId(roomId);
+    } else if (role === 'admin' && !activeConversationId && rooms.length > 0) {
+      // For admin, set first room as active
       setActiveConversationId(rooms[0].id);
     }
-  }, [role, activeConversationId, rooms]);
+  }, [role, roomId, activeConversationId, rooms]);
 
   const handleSelectConversation = async (id: string) => {
     setActiveConversationId(id);
@@ -88,6 +94,9 @@ function App() {
     // Optional: handle status locally
   };
 
+  // Filter rooms for users - they should only see their own room
+  const filteredRooms = isAdmin ? rooms : rooms.filter(room => room.id === roomId);
+
   return (
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
@@ -95,7 +104,7 @@ function App() {
               sidebar={
                   isAdmin && (
                       <ConversationList
-                          conversations={rooms}
+                          conversations={filteredRooms}
                           activeConversationId={activeConversationId}
                           onSelectConversation={handleSelectConversation}
                       />

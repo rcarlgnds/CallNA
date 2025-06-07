@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -10,30 +10,86 @@ import {
     useMantineTheme,
     Title,
     ActionIcon,
+    Select,
+    Loader,
 } from '@mantine/core';
 import { IconUser, IconLock, IconSun, IconMoon } from '@tabler/icons-react';
 import { useAuthStore } from '../store/authStore';
 import { useMantineColorScheme } from '@mantine/core';
+import { roomService } from '../services/api/roomService';
+import { Room } from '../services/types';
 
 const LoginPage: React.FC = () => {
     const theme = useMantineTheme();
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-    const setRole = useAuthStore((state) => state.setRole);
-    const [username, setUsername] = useState('');
+    const { setRole, setUsername, setRoomId } = useAuthStore();
+    const [username, setUsernameInput] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const fetchedRooms = await roomService.getRooms();
+                setRooms(fetchedRooms);
+            } catch (error) {
+                console.error('Error fetching rooms:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRooms();
+    }, []);
 
     const handleLogin = () => {
-        if (!username || !password) return;
+        if (!username || !password) {
+            setError('Please fill in all fields');
+            return;
+        }
 
+        setError(null);
+
+        // Admin login
         if (username === 'admin' && password === 'admin') {
             setRole('admin');
-        } else if (username === 'user' && password === 'user') {
+            setUsername('admin');
+            setRoomId(null);
+            return;
+        }
+
+        // User login - check if username matches any room name
+        const matchingRoom = rooms.find(room => 
+            room.roomName.toLowerCase() === username.toLowerCase() && 
+            room.roomName.toLowerCase() === password.toLowerCase()
+        );
+
+        if (matchingRoom) {
             setRole('user');
+            setUsername(username);
+            setRoomId(matchingRoom.id);
         } else {
-            setError('Invalid credentials.');
+            setError('Invalid credentials. For users, use room name as both username and password.');
         }
     };
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Loader size="lg" />
+            </Box>
+        );
+    }
 
     return (
         <Box
@@ -98,12 +154,26 @@ const LoginPage: React.FC = () => {
                             CallNA
                         </Title>
 
+                        <Text size="sm" color="dimmed" align="center">
+                            Admin: username=admin, password=admin<br/>
+                            User: Use room name as both username and password
+                        </Text>
+
+                        {rooms.length > 0 && (
+                            <Box>
+                                <Text size="sm" weight={500} mb="xs">Available Rooms:</Text>
+                                <Text size="xs" color="dimmed">
+                                    {rooms.map(room => room.roomName).join(', ')}
+                                </Text>
+                            </Box>
+                        )}
+
                         <TextInput
                             label="Username"
                             placeholder="Enter your username"
                             icon={<IconUser size={18} />}
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setUsernameInput(e.target.value)}
                             required
                         />
 
@@ -118,7 +188,7 @@ const LoginPage: React.FC = () => {
                         />
 
                         {error && (
-                            <Text color="red\" size="sm\" align="center">
+                            <Text color="red" size="sm" align="center">
                                 {error}
                             </Text>
                         )}

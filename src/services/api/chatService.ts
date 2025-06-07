@@ -11,7 +11,7 @@ export const chatService = {
         variables: { roomId, skip, take },
         fetchPolicy: 'cache-and-network',
       });
-      return data.chats;
+      return data.chats || [];
     } catch (error) {
       console.error('Error fetching chats:', error);
       return [];
@@ -20,9 +20,32 @@ export const chatService = {
 
   async createChat(input: CreateChatInput): Promise<Chat | null> {
     try {
+      // Convert File to base64 if present
+      let fileData = null;
+      if (input.file) {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result.split(',')[1]); // Remove data:image/...;base64, prefix
+          };
+          reader.readAsDataURL(input.file!);
+        });
+
+        fileData = {
+          name: input.file.name,
+          dataStream: base64,
+        };
+      }
+
       const { data } = await apolloClient.mutate({
         mutation: CREATE_CHAT,
-        variables: { createChatInput: input },
+        variables: { 
+          createChatInput: {
+            ...input,
+            file: fileData,
+          }
+        },
       });
       return data.createChat;
     } catch (error) {

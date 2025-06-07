@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, MediaQuery } from '@mantine/core';
 import Navbar from './Navbar';
+import { useAuthStore } from '../store/authStore';
 
 interface LayoutProps {
   sidebar: React.ReactNode;
@@ -9,6 +10,9 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) => {
+  const { role } = useAuthStore();
+  const isAdmin = role === 'admin';
+
   return (
     <Box 
       sx={(theme) => ({
@@ -36,25 +40,28 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
     >
       <Navbar />
       <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
-        <MediaQuery 
-          smallerThan="md" 
-          styles={{ 
-            display: activeConversationId ? 'none' : 'block',
-            width: '100%',
-          }}
-        >
-          <Box 
-            sx={(theme) => ({
-              width: 320,
-              borderRight: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
-              overflow: 'hidden',
-              backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-              transition: theme.other.colorSchemeTransition,
-            })}
+        {/* Only show sidebar for admin users */}
+        {isAdmin && (
+          <MediaQuery 
+            smallerThan="md" 
+            styles={{ 
+              display: activeConversationId ? 'none' : 'block',
+              width: '100%',
+            }}
           >
-            {sidebar}
-          </Box>
-        </MediaQuery>
+            <Box 
+              sx={(theme) => ({
+                width: 320,
+                borderRight: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+                overflow: 'hidden',
+                backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+                transition: theme.other.colorSchemeTransition,
+              })}
+            >
+              {sidebar}
+            </Box>
+          </MediaQuery>
+        )}
         
         <MediaQuery 
           smallerThan="md" 

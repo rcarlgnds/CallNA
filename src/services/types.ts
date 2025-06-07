@@ -53,3 +53,9 @@ export interface CreateHistoryInput {
   roomId: string;
   status: Status;
 }
+
+export interface QuickMessage {
+  id: string;
+  content: string;
+  category: string;
+}
