@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button, Group } from '@mantine/core';
 import { CheckCircle2, Flag } from 'lucide-react';
-import { RoomStatus } from '../../services/rooms/types';
+import { Status } from '../../services/types';
 
 interface ChatActionsProps {
-    status: RoomStatus;
+    status: Status;
     onFollowUp: () => void;
     onResolve: () => void;
 }
@@ -22,7 +22,7 @@ const ChatActions: React.FC<ChatActionsProps> = ({ status, onFollowUp, onResolve
                 variant="light"
                 color="green"
                 leftIcon={<Flag size={16} />}
-                disabled={status !== RoomStatus.NEW_REQUEST}
+                disabled={status !== Status.DEFAULT}
                 onClick={onFollowUp}
             >
                 Follow Up
@@ -32,7 +32,7 @@ const ChatActions: React.FC<ChatActionsProps> = ({ status, onFollowUp, onResolve
                 variant="light"
                 color="blue"
                 leftIcon={<CheckCircle2 size={16} />}
-                disabled={status !== RoomStatus.FOLLOWED_UP}
+                disabled={status !== Status.FOLLOW_UP}
                 onClick={onResolve}
             >
                 Resolve

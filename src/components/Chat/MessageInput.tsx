@@ -4,13 +4,13 @@ import { Plus, Send, Image } from 'lucide-react';
 import QuickMessages from './QuickMessages';
 import ChatActions from './ChatActions';
 import AIRecommendation from './AIRecommendation';
-import { RoomStatus } from '../../services/rooms/types';
+import { Status } from '../../services/types';
 
 interface MessageInputProps {
   onSendMessage: (message: string, file?: File) => void;
   onFollowUp: () => void;
   onResolve: () => void;
-  roomStatus: RoomStatus;
+  roomStatus: Status;
   isAdmin?: boolean;
 }
 

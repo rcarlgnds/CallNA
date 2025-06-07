@@ -1,26 +1,51 @@
 import React from 'react';
 import { Avatar, Badge, Box, Group, Stack, Text, UnstyledButton } from '@mantine/core';
-import { Room, RoomStatusColor } from '../../services/rooms/types';
+import { Room, Status } from '../../services/types';
 
 interface ConversationItemProps {
     conversation: Room;
     isActive: boolean;
     onClick: (id: string) => void;
+    unreadCount?: number;
+    lastMessage?: string;
+    lastMessageTime?: string;
 }
+
+const getStatusColor = (status: Status): string => {
+  switch (status) {
+    case Status.DEFAULT:
+      return 'red';
+    case Status.FOLLOW_UP:
+      return 'green';
+    case Status.RESOLVED:
+      return 'blue';
+    default:
+      return 'gray';
+  }
+};
+
+const getStatusText = (status: Status): string => {
+  switch (status) {
+    case Status.DEFAULT:
+      return 'New Request';
+    case Status.FOLLOW_UP:
+      return 'Follow Up';
+    case Status.RESOLVED:
+      return 'Resolved';
+    default:
+      return 'Unknown';
+  }
+};
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
     conversation,
     isActive,
-    onClick
+    onClick,
+    unreadCount = 0,
+    lastMessage,
+    lastMessageTime,
 }) => {
-    const {
-        id,
-        roomName,
-        lastMessage,
-        lastMessageTimestamp,
-        unreadCount,
-        status,
-    } = conversation;
+    const { id, roomName, status } = conversation;
 
     return (
         <UnstyledButton
@@ -57,7 +82,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                                 width: 10,
                                 height: 10,
                                 borderRadius: '50%',
-                                backgroundColor: theme.colors[RoomStatusColor[status]][6],
+                                backgroundColor: theme.colors[getStatusColor(status)][6],
                                 border: `2px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white}`,
                             })}
                         />
@@ -65,6 +90,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                     <Stack spacing={0}>
                         <Text size="sm" weight={500}>
                             {roomName}
+                        </Text>
+                        <Text size="xs" color="dimmed">
+                            {getStatusText(status)}
                         </Text>
                         {lastMessage && (
                             <Text
@@ -79,9 +107,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                     </Stack>
                 </Group>
                 <Stack spacing={5} align="flex-end">
-                    {lastMessageTimestamp && (
+                    {lastMessageTime && (
                         <Text size="xs" color="dimmed">
-                            {lastMessageTimestamp}
+                            {lastMessageTime}
                         </Text>
                     )}
                     {unreadCount > 0 && (
@@ -100,4 +128,4 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     );
 };
 
-export default ConversationItem
+export default ConversationItem;

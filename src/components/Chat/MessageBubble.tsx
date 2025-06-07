@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Box, Group, Stack, Text, Image, Modal } from '@mantine/core';
 import { Check, CheckCheck } from 'lucide-react';
-import { Message } from "./MessageList";
+import { Chat } from '../../services/types';
 
 interface MessageBubbleProps {
-    message: Message;
+    message: Chat & { isOwn?: boolean };
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
-    const { isOwn, text, createdAt, isRead, imageUrl } = message;
+    const { isOwn, text, createdAt, isRead, file } = message;
     const [imageModalOpen, setImageModalOpen] = useState(false);
+
+    const imageUrl = file?.dataStream ? `data:image/jpeg;base64,${file.dataStream}` : undefined;
 
     return (
         <>
@@ -46,7 +48,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                             >
                                 <Image
                                     src={imageUrl}
-                                    alt={text ? text : 'Sent image'}
+                                    alt={text || 'Sent image'}
                                     radius="md"
                                     sx={{ maxWidth: 300, width: '100%', objectFit: 'cover' }}
                                 />
@@ -56,15 +58,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
 
                     <Group spacing={4} align="center">
                         <Text size="xs" color="dimmed" sx={{ fontSize: '0.7rem' }}>
-                            {createdAt
-                                ? new Date(createdAt).toLocaleString(undefined, {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false,
-                                })
-                                : 'Invalid date'}
+                            {new Date(createdAt).toLocaleString(undefined, {
+                                day: '2-digit',
+                                month: 'long',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
+                            })}
                         </Text>
                         {isOwn && (
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -85,7 +85,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             >
                 <Image
                     src={imageUrl}
-                    alt={text ? text : 'Image preview'}
+                    alt={text || 'Image preview'}
                     fit="contain"
                     height="80vh"
                 />

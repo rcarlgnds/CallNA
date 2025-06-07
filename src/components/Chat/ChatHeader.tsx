@@ -1,10 +1,23 @@
 import React from 'react';
 import { Avatar, Box, Group, Paper, Text } from '@mantine/core';
-import {Room, RoomStatus} from "../../services/rooms/types.ts"; //
+import { Room, Status } from '../../services/types';
 
 interface ChatHeaderProps {
   room: Room;
 }
+
+const getStatusText = (status: Status): string => {
+  switch (status) {
+    case Status.DEFAULT:
+      return 'New Request';
+    case Status.FOLLOW_UP:
+      return 'Follow Up';
+    case Status.RESOLVED:
+      return 'Resolved';
+    default:
+      return 'Unknown';
+  }
+};
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ room }) => {
   return (
@@ -23,7 +36,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ room }) => {
                 radius="xl"
                 size="md"
             />
-            {room.status === RoomStatus.RESOLVED && (
+            {room.status === Status.RESOLVED && (
                 <Box
                     sx={(theme) => ({
                       position: 'absolute',
@@ -43,11 +56,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ room }) => {
               {room.roomName}
             </Text>
             <Text size="xs" color="dimmed">
-              {room.status === RoomStatus.RESOLVED
-                  ? 'Resolved'
-                  : room.status === RoomStatus.NEW_REQUEST
-                      ? 'New Request'
-                      : 'Followed Up'}
+              {getStatusText(room.status)}
             </Text>
           </Box>
         </Group>

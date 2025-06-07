@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Input, ScrollArea, Stack, Text } from '@mantine/core';
 import { Search } from 'lucide-react';
-import { Conversation } from '../../types';
+import { Room } from '../../services/types';
 import ConversationItem from './ConversationItem';
 
 interface ConversationListProps {
-  conversations: Conversation[];
+  conversations: Room[];
   activeConversationId: string | null;
   onSelectConversation: (id: string) => void;
 }
