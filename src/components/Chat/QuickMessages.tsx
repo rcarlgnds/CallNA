@@ -1,12 +1,38 @@
 import React from 'react';
-import { Box, Button, Group, Paper, Stack, Text } from '@mantine/core';
+import { Box, Button, Paper, Stack, Text } from '@mantine/core';
 import { QuickMessage } from '../../types';
 
-const quickMessages: QuickMessage[] = [
-    { id: '1', content: 'Thank you for contacting us!', category: 'Greetings' },
-    { id: '2', content: 'I\'ll check and get back to you shortly.', category: 'Follow-up' },
-    { id: '3', content: 'Is there anything else I can help you with?', category: 'Closing' },
-    { id: '4', content: 'Could you please provide more details?', category: 'Questions' },
+const adminQuickMessages: QuickMessage[] = [
+    {
+        id: '1',
+        content: 'Satu staff sedang menuju ke ruangan, mohon ditunggu.',
+        category: 'On-Site Support',
+    },
+    {
+        id: '2',
+        content: 'Untuk matkul ini sudah kami jadwalkan internetnya, jadi tidak perlu request lagi, tetapi kalau masih lambat boleh infokan ya Pak/Bu.',
+        category: 'Internet & Bandwidth',
+    },
+    {
+        id: '3',
+        content: 'Internetnya sudah kami nyalakan, silakan dicek kembali ya Pak/Bu',
+        category: 'Internet & Bandwidth',
+    },
+    {
+        id: '4',
+        content: 'Bandwidth internetnya sudah kami tingkatkan, silakan dicek kembali ya Pak/Bu.',
+        category: 'Internet & Bandwidth',
+    },
+    {
+        id: '5',
+        content: 'Untuk internet sedang berkendala di jaringan lab. Kami akan coba meningkatkan bandwidth internet, tapi mungkin tidak akan terlalu berpengaruh.',
+        category: 'Internet & Bandwidth',
+    },
+    {
+        id: '6',
+        content: 'Untuk update Zoom sudah kami bantu jalankan, jika terbuka window CMD di komputer pengajar jangan ditutup ya.',
+        category: 'Zoom',
+    },
 ];
 
 interface QuickMessagesProps {
@@ -30,14 +56,15 @@ const QuickMessages: React.FC<QuickMessagesProps> = ({ onSelect, className, styl
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 zIndex: 5,
+                maxHeight: 300,
+                overflowY: 'auto',
             })}
             p="md"
             shadow="md"
         >
-
-        <Stack spacing="xs">
+            <Stack spacing="xs">
                 {Object.entries(
-                    quickMessages.reduce<Record<string, QuickMessage[]>>((acc, message) => {
+                    adminQuickMessages.reduce<Record<string, QuickMessage[]>>((acc, message) => {
                         if (!acc[message.category]) acc[message.category] = [];
                         acc[message.category].push(message);
                         return acc;
@@ -47,18 +74,24 @@ const QuickMessages: React.FC<QuickMessagesProps> = ({ onSelect, className, styl
                         <Text size="xs" weight={500} color="dimmed" mb={4}>
                             {category}
                         </Text>
-                        <Group spacing="xs" noWrap>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                             {messages.map((message) => (
                                 <Button
                                     key={message.id}
                                     variant="light"
                                     size="xs"
                                     onClick={() => onSelect(message.content)}
+                                    sx={{
+                                        flexShrink: 0,
+                                        whiteSpace: 'normal',
+                                        maxWidth: '100%',
+                                        textAlign: 'left',
+                                    }}
                                 >
                                     {message.content}
                                 </Button>
                             ))}
-                        </Group>
+                        </Box>
                     </Box>
                 ))}
             </Stack>
