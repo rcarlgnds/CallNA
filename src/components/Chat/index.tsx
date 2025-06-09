@@ -4,7 +4,6 @@ import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { Room, Status, Chat as ChatType, History } from '../../services/types';
-import { chatService } from '../../services/api/chatService';
 import { roomService } from '../../services/api/roomService';
 import { historyService } from '../../services/api/historyService';
 
@@ -14,7 +13,6 @@ interface ChatProps {
   chatMarkers: History[];
   onSendMessage: (message: string, file?: File) => void;
   onUpdateStatus: (status: Status) => void;
-  onAddMarker: (marker: History) => void;
   isAdmin?: boolean;
 }
 
@@ -24,7 +22,6 @@ const Chat: React.FC<ChatProps> = ({
   chatMarkers,
   onSendMessage,
   onUpdateStatus,
-  onAddMarker,
   isAdmin = true,
 }) => {
   const [chatStatus, setChatStatus] = useState<Status>(room.status);
@@ -42,16 +39,13 @@ const Chat: React.FC<ChatProps> = ({
         status: Status.FOLLOW_UP,
       });
 
-      const newMarker = await historyService.createHistory({
+      await historyService.createHistory({
         roomId: room.id,
         status: Status.FOLLOW_UP,
       });
 
-      if (newMarker) {
-        onUpdateStatus(Status.FOLLOW_UP);
-        setChatStatus(Status.FOLLOW_UP);
-        onAddMarker(newMarker);
-      }
+      onUpdateStatus(Status.FOLLOW_UP);
+      setChatStatus(Status.FOLLOW_UP);
     } catch (error) {
       console.error('Error following up:', error);
     }
@@ -66,16 +60,13 @@ const Chat: React.FC<ChatProps> = ({
         status: Status.RESOLVED,
       });
 
-      const newMarker = await historyService.createHistory({
+      await historyService.createHistory({
         roomId: room.id,
         status: Status.RESOLVED,
       });
 
-      if (newMarker) {
-        onUpdateStatus(Status.RESOLVED);
-        setChatStatus(Status.RESOLVED);
-        onAddMarker(newMarker);
-      }
+      onUpdateStatus(Status.RESOLVED);
+      setChatStatus(Status.RESOLVED);
     } catch (error) {
       console.error('Error resolving:', error);
     }

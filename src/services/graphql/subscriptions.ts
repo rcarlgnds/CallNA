@@ -53,3 +53,18 @@ export const ROOM_UPDATED_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const HISTORY_CREATED_SUBSCRIPTION = gql`
+  subscription HistoryCreated {
+    historyCreated {
+      id
+      createdAt
+      status
+      room {
+        id
+        roomName
+        status
+      }
+    }
+  }
+`;

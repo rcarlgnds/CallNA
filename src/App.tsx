@@ -9,19 +9,20 @@ import LoginPage from './pages/LoginPage';
 import { useAuthStore } from './store/authStore';
 import { useRooms } from './hooks/useRooms';
 import { useChats } from './hooks/useChats';
+import { useHistories } from './hooks/useHistories';
 import { chatService } from './services/api/chatService';
-import { Status, History } from './services/types';
+import { Status } from './services/types';
 
 function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [chatMarkers, setChatMarkers] = useState<Record<string, History[]>>({});
 
   const { role, roomId } = useAuthStore();
   const isAdmin = role === 'admin';
 
   const { rooms} = useRooms();
   const { chats} = useChats(activeConversationId || undefined, isAdmin);
+  const { histories } = useHistories();
 
   console.log("Rooms: ", rooms);
   console.log("Current role:", role);
@@ -69,7 +70,11 @@ function App() {
   };
 
   const activeConversation = rooms.find((conv) => conv.id === activeConversationId);
-  const activeMarkers = activeConversationId ? chatMarkers[activeConversationId] || [] : [];
+  
+  // Get markers for the active conversation
+  const activeMarkers = activeConversationId 
+    ? histories.filter(history => history.room.id === activeConversationId)
+    : [];
 
   if (!role) {
     return (
@@ -81,15 +86,8 @@ function App() {
     );
   }
 
-  const handleAddMarker = (roomId: string, marker: History) => {
-    setChatMarkers((prev) => ({
-      ...prev,
-      [roomId]: [...(prev[roomId] || []), marker],
-    }));
-  };
-
   const handleUpdateStatus = (newStatus: Status) => {
-
+    // This will be handled by the room subscription
   };
 
   const filteredRooms = isAdmin ? rooms : rooms.filter(room => room.id === roomId);
@@ -115,7 +113,6 @@ function App() {
                         chatMarkers={activeMarkers}
                         onSendMessage={handleSendMessage}
                         onUpdateStatus={handleUpdateStatus}
-                        onAddMarker={(marker) => handleAddMarker(activeConversationId!, marker)}
                         isAdmin={isAdmin}
                     />
                 ) : (

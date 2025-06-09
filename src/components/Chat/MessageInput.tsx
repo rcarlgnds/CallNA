@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { ActionIcon, Box, Group, TextInput, Transition, Text } from '@mantine/core';
-import { Plus, Send, Image } from 'lucide-react';
+import { ActionIcon, Box, Group, TextInput, Transition, Text, Alert } from '@mantine/core';
+import { Plus, Send, Image, X } from 'lucide-react';
 import QuickMessages from './QuickMessages';
 import ChatActions from './ChatActions';
 import AIRecommendation from './AIRecommendation';
@@ -25,13 +25,43 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [showQuickMessages, setShowQuickMessages] = useState(false);
   const [showAIRecommendation, setShowAIRecommendation] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent, file?: File) => {
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+
+  const validateFile = (file: File): boolean => {
+    setFileError(null);
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setFileError('Only image files (JPEG, PNG, GIF, WebP) are allowed');
+      return false;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError('File size must be less than 10MB');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (validateFile(file)) {
+      setSelectedFile(file);
+      setFileError(null);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() || file) {
-      onSendMessage(message, file);
+    if (message.trim() || selectedFile) {
+      onSendMessage(message, selectedFile || undefined);
       setMessage('');
+      setSelectedFile(null);
+      setFileError(null);
 
       if (!isAdmin) {
         setTimeout(() => setShowAIRecommendation(true), 500);
@@ -63,9 +93,14 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setIsDragging(false);
 
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      handleSubmit(e, file);
+    if (file) {
+      handleFileSelect(file);
     }
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setFileError(null);
   };
 
   return (
@@ -80,7 +115,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       <Box
         component="form"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -122,10 +157,43 @@ const MessageInput: React.FC<MessageInputProps> = ({
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              handleSubmit(new Event('submit') as any, file);
+              handleFileSelect(file);
             }
           }}
         />
+
+        {fileError && (
+          <Alert color="red" mb="xs" onClose={() => setFileError(null)} withCloseButton>
+            {fileError}
+          </Alert>
+        )}
+
+        {selectedFile && (
+          <Box
+            mb="xs"
+            p="xs"
+            sx={(theme) => ({
+              backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
+              borderRadius: theme.radius.md,
+              border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
+            })}
+          >
+            <Group position="apart">
+              <Group spacing="xs">
+                <Image size={16} />
+                <Text size="sm" truncate sx={{ maxWidth: 200 }}>
+                  {selectedFile.name}
+                </Text>
+                <Text size="xs" color="dimmed">
+                  ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                </Text>
+              </Group>
+              <ActionIcon size="sm" onClick={removeSelectedFile}>
+                <X size={14} />
+              </ActionIcon>
+            </Group>
+          </Box>
+        )}
 
         <Transition mounted={showQuickMessages} transition="slide-up" duration={200}>
           {(styles) => (
@@ -211,7 +279,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               variant="filled"
               radius="xl"
               type="submit"
-              disabled={!message.trim()}
+              disabled={!message.trim() && !selectedFile}
             >
               <Send size={18} />
             </ActionIcon>
