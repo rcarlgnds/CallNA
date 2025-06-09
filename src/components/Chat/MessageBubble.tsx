@@ -26,7 +26,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                     <Box
                         sx={(theme) => ({
                             display: 'inline-block',
-                            padding: '10px 14px',
+                            padding: '12px 16px',
                             borderRadius: theme.radius.lg,
                             backgroundColor: isOwn
                                 ? theme.colors.green[6]
@@ -34,13 +34,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                             color: isOwn
                                 ? theme.white
                                 : theme.colorScheme === 'dark' ? theme.white : theme.black,
+                            maxWidth: '75%',
+                            minWidth: 'fit-content',
+                            width: 'auto',
                             wordWrap: 'break-word',
                             wordBreak: 'break-word',
                             overflowWrap: 'break-word',
                             hyphens: 'auto',
-                            maxWidth: '80%',
-                            minWidth: 'fit-content',
-                            width: 'auto',
+                            boxShadow: theme.shadows.sm,
+                            transition: 'all 0.2s ease',
                         })}
                     >
                         {text && (
@@ -50,7 +52,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                                     wordWrap: 'break-word',
                                     wordBreak: 'break-word',
                                     overflowWrap: 'break-word',
-                                    lineHeight: 1.4,
+                                    lineHeight: 1.5,
+                                    margin: 0,
+                                    fontSize: '14px',
                                 }}
                             >
                                 {text}
@@ -67,17 +71,25 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                                     src={imageUrl}
                                     alt={text || 'Sent image'}
                                     radius="md"
-                                    sx={{ maxWidth: 300, width: '100%', objectFit: 'cover' }}
+                                    sx={{ 
+                                        maxWidth: 280, 
+                                        width: '100%', 
+                                        objectFit: 'cover',
+                                        transition: 'transform 0.2s ease',
+                                        '&:hover': {
+                                            transform: 'scale(1.02)',
+                                        },
+                                    }}
                                 />
                             </Box>
                         )}
                     </Box>
 
                     <Group spacing={4} align="center">
-                        <Text size="xs" color="dimmed" sx={{ fontSize: '0.7rem' }}>
+                        <Text size="xs" color="dimmed" sx={{ fontSize: '11px' }}>
                             {new Date(createdAt).toLocaleString(undefined, {
                                 day: '2-digit',
-                                month: 'long',
+                                month: 'short',
                                 hour: '2-digit',
                                 minute: '2-digit',
                                 hour12: false,
@@ -85,8 +97,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                         </Text>
                         {isOwn && (
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                {!isRead && <Check size={14} color="#ADB5BD" />}
-                                {isRead && <CheckCheck size={14} color="#06C755" />}
+                                {!isRead && <Check size={12} color="#ADB5BD" />}
+                                {isRead && <CheckCheck size={12} color="#06C755" />}
                             </Box>
                         )}
                     </Group>
@@ -99,6 +111,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                 size="xl"
                 centered
                 padding="xs"
+                styles={(theme) => ({
+                    modal: {
+                        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+                    },
+                })}
             >
                 <Image
                     src={imageUrl}

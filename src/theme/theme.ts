@@ -49,6 +49,6 @@ export const theme: MantineThemeOverride = {
     }
   },
   other: {
-    colorSchemeTransition: 'background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out'
+    colorSchemeTransition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   }
 };

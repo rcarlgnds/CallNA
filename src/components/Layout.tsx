@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
         height: '100vh',
         overflow: 'hidden',
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
-        transition: theme.other.colorSchemeTransition,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         '&::before': {
           content: '""',
@@ -35,6 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
             : 'radial-gradient(circle at 50% 50%, rgba(62, 184, 121, 0.05) 0%, rgba(62, 184, 121, 0) 70%)',
           pointerEvents: 'none',
           zIndex: 0,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
       })}
     >
@@ -55,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
                 borderRight: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
                 overflow: 'hidden',
                 backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-                transition: theme.other.colorSchemeTransition,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               })}
             >
               {sidebar}
@@ -75,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ sidebar, main, activeConversationId }) 
               flex: 1, 
               overflow: 'hidden',
               backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-              transition: theme.other.colorSchemeTransition,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             })}
           >
             {main}
