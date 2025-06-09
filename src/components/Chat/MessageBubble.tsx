@@ -34,15 +34,32 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                             color: isOwn
                                 ? theme.white
                                 : theme.colorScheme === 'dark' ? theme.white : theme.black,
-                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            hyphens: 'auto',
                             maxWidth: '80%',
+                            minWidth: 'fit-content',
+                            width: 'auto',
                         })}
                     >
-                        {text && <Text>{text}</Text>}
+                        {text && (
+                            <Text 
+                                sx={{ 
+                                    whiteSpace: 'pre-wrap',
+                                    wordWrap: 'break-word',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    lineHeight: 1.4,
+                                }}
+                            >
+                                {text}
+                            </Text>
+                        )}
 
                         {imageUrl && (
                             <Box 
-                                mt="xs" 
+                                mt={text ? "xs" : 0}
                                 sx={{ cursor: 'pointer' }}
                                 onClick={() => setImageModalOpen(true)}
                             >
