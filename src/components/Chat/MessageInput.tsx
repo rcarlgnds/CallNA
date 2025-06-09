@@ -163,7 +163,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         />
 
         {fileError && (
-          <Alert color="red" mb="xs" onClose={() => setFileError(null)} withCloseButton>
+          <Alert color="red\" mb="xs\" onClose={() => setFileError(null)} withCloseButton>
             {fileError}
           </Alert>
         )}
