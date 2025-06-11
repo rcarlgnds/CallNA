@@ -29,7 +29,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB (reduced from 10MB)
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
   const validateFile = (file: File): boolean => {
@@ -41,7 +41,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setFileError('File size must be less than 10MB');
+      setFileError('File size must be less than 5MB');
       return false;
     }
 
