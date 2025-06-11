@@ -1,6 +1,6 @@
 import { apolloClient } from '../graphql/client';
 import { GET_CHATS } from '../graphql/queries';
-import { CREATE_CHAT, UPDATE_CHAT_READ_STATUS } from '../graphql/mutations';
+import { CREATE_CHAT, UPDATE_CHAT_READ_STATUS, CREATE_FILE } from '../graphql/mutations';
 import { Chat, CreateChatInput } from '../types';
 
 export const chatService = {
@@ -19,7 +19,9 @@ export const chatService = {
 
   async createChat(input: CreateChatInput): Promise<Chat | null> {
     try {
-      let fileData = null;
+      let fileId = null;
+      
+      // Create file first if provided
       if (input.file) {
         const base64 = await new Promise<string>((resolve) => {
           const reader = new FileReader();
@@ -30,10 +32,19 @@ export const chatService = {
           reader.readAsDataURL(input.file!);
         });
 
-        fileData = {
-          name: input.file.name,
-          dataStream: base64,
-        };
+        const { data: fileData } = await apolloClient.mutate({
+          mutation: CREATE_FILE,
+          variables: { 
+            createFileInput: {
+              name: input.file.name,
+              dataStream: base64,
+            }
+          },
+        });
+        
+        if (fileData?.createFile) {
+          fileId = fileData.createFile.id;
+        }
       }
 
       const createChatInput: any = {
@@ -42,8 +53,8 @@ export const chatService = {
         isAdmin: input.isAdmin,
       };
 
-      if (fileData) {
-        createChatInput.file = fileData;
+      if (fileId) {
+        createChatInput.fileId = fileId;
       }
 
       if (input.historyId) {

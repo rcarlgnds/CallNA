@@ -27,6 +27,7 @@ function App() {
   console.log("Rooms: ", rooms);
   console.log("Current role:", role);
   console.log("Room ID:", roomId);
+  console.log("Active Conversation ID:", activeConversationId);
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
@@ -49,6 +50,7 @@ function App() {
   }, [role, roomId, activeConversationId, rooms]);
 
   const handleSelectConversation = async (id: string) => {
+    console.log("Selecting conversation:", id);
     setActiveConversationId(id);
     if (isAdmin) {
       await chatService.markRoomAsRead(id);
@@ -56,7 +58,13 @@ function App() {
   };
 
   const handleSendMessage = async (content: string, file?: File) => {
-    if (!activeConversationId) return;
+    if (!activeConversationId) {
+      console.error("No active conversation ID");
+      return;
+    }
+    
+    console.log("Sending message to room:", activeConversationId);
+    
     try {
       await chatService.createChat({
         roomId: activeConversationId,

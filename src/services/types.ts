@@ -40,6 +40,11 @@ export interface CreateChatInput {
   file?: File;
 }
 
+export interface CreateFileInput {
+  name: string;
+  dataStream: string;
+}
+
 export interface CreateRoomInput {
   roomName: string;
 }

@@ -27,6 +27,17 @@ export const CREATE_CHAT = gql`
   }
 `;
 
+export const CREATE_FILE = gql`
+  mutation CreateFile($createFileInput: CreateFileInput!) {
+    createFile(createFileInput: $createFileInput) {
+      id
+      name
+      dataStream
+      createdAt
+    }
+  }
+`;
+
 export const CREATE_ROOM = gql`
   mutation CreateRoom($createRoomInput: CreateRoomInput!) {
     createRoom(createRoomInput: $createRoomInput) {
