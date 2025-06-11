@@ -10,20 +10,6 @@ export interface Room {
   status: Status;
 }
 
-export interface Chat {
-  id: string;
-  text: string;
-  createdAt: string;
-  isAdmin: boolean;
-  isRead: boolean;
-  room: Room;
-  file?: {
-    id: string;
-    name: string;
-    dataStream: string;
-  };
-}
-
 export interface History {
   id: string;
   createdAt: string;
@@ -31,11 +17,26 @@ export interface History {
   room: Room;
 }
 
+export interface Chat {
+  id: string;
+  text: string;
+  createdAt: string;
+  isAdmin: boolean;
+  isRead: boolean;
+  room: Room;
+  history?: History;
+  file?: {
+    id: string;
+    name: string;
+    dataStream: string;
+  };
+}
+
 export interface CreateChatInput {
   roomId: string;
   text: string;
   isAdmin: boolean;
-  status?: Status;
+  historyId?: string;
   file?: File;
 }
 

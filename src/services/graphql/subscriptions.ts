@@ -13,6 +13,11 @@ export const CHAT_SENDED_SUBSCRIPTION = gql`
         roomName
         status
       }
+      history {
+        id
+        status
+        createdAt
+      }
       file {
         id
         name
@@ -34,6 +39,11 @@ export const CHAT_SENDED_ADMIN_SUBSCRIPTION = gql`
         id
         roomName
         status
+      }
+      history {
+        id
+        status
+        createdAt
       }
       file {
         id

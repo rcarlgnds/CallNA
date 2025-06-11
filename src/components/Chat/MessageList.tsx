@@ -26,14 +26,26 @@ const MessageList: React.FC<MessageListProps> = ({ messages, markers = [], curre
     }
   }, [messages, markers]);
 
+  // Filter out messages that have history (status markers) and display them as markers instead
+  const regularMessages = messages.filter(msg => !msg.history);
+  const statusMessages = messages.filter(msg => msg.history);
+
   const timeline: TimelineItem[] = [
-    ...messages.map(msg => ({
+    ...regularMessages.map(msg => ({
       ...msg,
       isOwn: msg.isAdmin === currentUserIsAdmin,
       type: 'message' as const,
     })),
     ...markers.map(marker => ({
       ...marker,
+      type: 'marker' as const,
+    })),
+    // Add status messages as markers
+    ...statusMessages.map(msg => ({
+      id: msg.id,
+      createdAt: msg.createdAt,
+      status: msg.history!.status,
+      room: msg.room,
       type: 'marker' as const,
     })),
   ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -50,7 +62,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, markers = [], curre
                 <Box key={`${item.status}-${item.id}`} my="md">
                   <Divider
                       label={
-                        <Text size="xs\" color="dimmed\" sx={{ whiteSpace: 'nowrap' }}>
+                        <Text size="xs" color="dimmed" sx={{ whiteSpace: 'nowrap' }}>
                           {item.status === 'FOLLOW_UP' ? 'Followed-up' : 'Resolved'} at{' '}
                           {format(new Date(item.createdAt), 'h:mm a')}
                         </Text>

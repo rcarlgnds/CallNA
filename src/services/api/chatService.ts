@@ -36,13 +36,24 @@ export const chatService = {
         };
       }
 
+      const createChatInput: any = {
+        roomId: input.roomId,
+        text: input.text,
+        isAdmin: input.isAdmin,
+      };
+
+      if (fileData) {
+        createChatInput.file = fileData;
+      }
+
+      if (input.historyId) {
+        createChatInput.historyId = input.historyId;
+      }
+
       const { data } = await apolloClient.mutate({
         mutation: CREATE_CHAT,
         variables: { 
-          createChatInput: {
-            ...input,
-            file: fileData,
-          }
+          createChatInput
         },
       });
       return data.createChat;

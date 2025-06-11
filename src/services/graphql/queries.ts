@@ -33,6 +33,11 @@ export const GET_CHATS = gql`
         roomName
         status
       }
+      history {
+        id
+        status
+        createdAt
+      }
       file {
         id
         name

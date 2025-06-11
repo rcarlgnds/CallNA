@@ -6,6 +6,7 @@ import MessageInput from './MessageInput';
 import { Room, Status, Chat as ChatType, History } from '../../services/types';
 import { roomService } from '../../services/api/roomService';
 import { historyService } from '../../services/api/historyService';
+import { chatService } from '../../services/api/chatService';
 
 interface ChatProps {
   room: Room;
@@ -34,13 +35,25 @@ const Chat: React.FC<ChatProps> = ({
     if (chatStatus !== Status.DEFAULT) return;
 
     try {
-      await roomService.updateRoom({
-        id: room.id,
+      // Create history first
+      const history = await historyService.createHistory({
+        roomId: room.id,
         status: Status.FOLLOW_UP,
       });
 
-      await historyService.createHistory({
-        roomId: room.id,
+      if (history) {
+        // Create chat with history reference
+        await chatService.createChat({
+          roomId: room.id,
+          text: '',
+          isAdmin: true,
+          historyId: history.id,
+        });
+      }
+
+      // Update room status
+      await roomService.updateRoom({
+        id: room.id,
         status: Status.FOLLOW_UP,
       });
 
@@ -55,13 +68,25 @@ const Chat: React.FC<ChatProps> = ({
     if (chatStatus !== Status.FOLLOW_UP) return;
 
     try {
-      await roomService.updateRoom({
-        id: room.id,
+      // Create history first
+      const history = await historyService.createHistory({
+        roomId: room.id,
         status: Status.RESOLVED,
       });
 
-      await historyService.createHistory({
-        roomId: room.id,
+      if (history) {
+        // Create chat with history reference
+        await chatService.createChat({
+          roomId: room.id,
+          text: '',
+          isAdmin: true,
+          historyId: history.id,
+        });
+      }
+
+      // Update room status
+      await roomService.updateRoom({
+        id: room.id,
         status: Status.RESOLVED,
       });
 
